@@ -7,7 +7,7 @@ import { encodeSheet } from './png';
 
 test('contact sheet', () => {
   const out = process.env.SHEET_OUT ?? 'pip-sheet.png';
-  const scale = 4;
+  const scale = 2;
   const rows: { label: string; g: PipGenome }[][] = [];
   const base = { intellect: 0, craft: 0, heart: 0, authority: 0 };
   const stages: LifeStage[] = ['egg', 'baby', 'kid', 'teen', 'adult', 'legend'];

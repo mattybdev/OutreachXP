@@ -166,6 +166,26 @@ function light(nx: number, ny: number): number {
   return nx * LIGHT[0] + ny * LIGHT[1] + nz * LIGHT[2];
 }
 
+/** Large heart: two round lobes over a rounded point, so the top dip stays clear. */
+function heartCurve(cx: number, cy: number, r: number): Shape {
+  const lobeR = r * 0.56, lobeX = r * 0.48, lobeY = cy - r * 0.3;
+  const tipY = cy + r * 1.05;
+  return {
+    bbox: [cx - r * 1.1, lobeY - lobeR, cx + r * 1.1, tipY],
+    sample(px, py) {
+      const u = (px - cx) / r, v = (py - cy) / r;
+      for (const side of [-1, 1]) {
+        const du = (px - (cx + side * lobeX)) / lobeR, dv = (py - lobeY) / lobeR;
+        if (du * du + dv * dv <= 1) return [u * 0.7, (v + 0.3) * 0.7];
+      }
+      // Lower body: width shrinks linearly from the lobes' widest point to the tip.
+      if (py < lobeY || py > tipY) return null;
+      const halfW = (lobeX + lobeR * 0.92) * (1 - (py - lobeY) / (tipY - lobeY));
+      return Math.abs(px - cx) <= halfW ? [u * 0.7, (v + 0.3) * 0.7] : null;
+    },
+  };
+}
+
 // ─── Shapes ────────────────────────────────────────────────────────────────
 
 export function ellipse(cx: number, cy: number, rx: number, ry: number): Shape {
@@ -227,6 +247,7 @@ const HEART_GLYPHS = [
 
 /** Symmetric pixel heart, point-down; `r` is roughly half its width. */
 export function heart(cx: number, cy: number, r: number): Shape {
+  if (r >= 5.5) return heartCurve(cx, cy, r);
   const glyph = HEART_GLYPHS[Math.max(0, Math.min(HEART_GLYPHS.length - 1, Math.round(r) - 3))];
   const w = glyph[0].length, h = glyph.length;
   const x0 = Math.round(cx) - w / 2;

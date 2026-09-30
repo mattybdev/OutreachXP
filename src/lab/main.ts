@@ -17,7 +17,7 @@ import {
   type PipGenome,
   type Stats,
 } from '../pip/genome';
-import { drawFrame, PIP_CANVAS, renderPip } from '../pip/render';
+import { drawFrame, GROUND, PIP_CANVAS, PIXEL_DENSITY, renderPip, type PipFrame } from '../pip/render';
 
 const STAT_LABELS: Record<keyof Stats, string> = {
   intellect: 'Intellect',
@@ -32,7 +32,7 @@ const STAT_CATEGORY: Record<keyof Stats, string> = {
   authority: 'Government',
 };
 const MAX_POINTS = 600;
-const STAGE_SCALE = 6;
+const STAGE_SCALE = 3;
 const STORAGE_KEY = 'outreachxp.piplab.v1';
 
 interface LabState {
@@ -256,6 +256,8 @@ const ctx = stage.getContext('2d')!;
 let lastTime = performance.now();
 const startTime = lastTime;
 let frozenTime = 0;
+let lastKey = '';
+let lastFrame: PipFrame | null = null;
 
 function tick(now: number): void {
   const dt = Math.min(0.1, (now - lastTime) / 1000);
@@ -270,7 +272,13 @@ function tick(now: number): void {
   const time = state.animate ? (now - startTime) / 1000 : frozenTime;
   if (state.animate) frozenTime = time;
   const genome: PipGenome = { ...state.genome, stats: { ...shown }, form: currentForm(state.genome.stats) };
-  const frame = renderPip(genome, { time, dither: state.dither });
+  // Animation runs at 10 fps, so only regenerate when something visible changed.
+  const key = JSON.stringify([genome, Math.floor(time * 10), state.dither, state.room]);
+  if (key !== lastKey) {
+    lastKey = key;
+    lastFrame = renderPip(genome, { time, dither: state.dither });
+  }
+  const frame = lastFrame!;
   paintRoom(ctx, STAGE_SCALE, state.room);
   drawFrame(ctx, frame, STAGE_SCALE);
   requestAnimationFrame(tick);
@@ -286,12 +294,15 @@ function paintRoom(c: CanvasRenderingContext2D, scale: number, room: boolean): v
   }
   c.fillStyle = roomColors.wall;
   c.fillRect(0, 0, size, size);
+  const step = 6 * PIXEL_DENSITY;
   c.fillStyle = roomColors.wallDot;
-  for (let y = 2; y < 58; y += 6) for (let x = (y / 6) % 2 ? 1 : 4; x < 64; x += 6) c.fillRect(x * scale, y * scale, scale, scale);
+  for (let y = 2 * PIXEL_DENSITY, row = 0; y < GROUND; y += step, row++) {
+    for (let x = row % 2 ? step / 2 : 1; x < PIP_CANVAS; x += step) c.fillRect(x * scale, y * scale, scale, scale);
+  }
   c.fillStyle = roomColors.floor;
-  c.fillRect(0, 58 * scale, size, 6 * scale);
+  c.fillRect(0, GROUND * scale, size, (PIP_CANVAS - GROUND) * scale);
   c.fillStyle = roomColors.floorLine;
-  c.fillRect(0, 58 * scale, size, scale);
+  c.fillRect(0, GROUND * scale, size, PIXEL_DENSITY * scale);
 }
 
 // ─── Variety grid ──────────────────────────────────────────────────────────
@@ -311,10 +322,10 @@ function renderVariety(): void {
     const button = document.createElement('button');
     button.type = 'button';
     const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = PIP_CANVAS * 2;
+    canvas.width = canvas.height = PIP_CANVAS;
     const c = canvas.getContext('2d')!;
-    paintRoom(c, 2, state.room);
-    drawFrame(c, renderPip(genome, { dither: state.dither }), 2);
+    paintRoom(c, 1, state.room);
+    drawFrame(c, renderPip(genome, { dither: state.dither }), 1);
     const label = document.createElement('span');
     label.textContent = `${FORM_NAMES[resolveForm(stats, lifeStage)]} · #${item.seed}`;
     button.append(canvas, label);
@@ -337,7 +348,7 @@ function currentGenome(): PipGenome {
 }
 
 function exportPng(): void {
-  const scale = 8;
+  const scale = 4;
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = PIP_CANVAS * scale;
   const c = canvas.getContext('2d')!;
@@ -347,7 +358,7 @@ function exportPng(): void {
 }
 
 function exportSheet(): void {
-  const scale = 4, frames = 20;
+  const scale = 2, frames = 20;
   const canvas = document.createElement('canvas');
   canvas.width = PIP_CANVAS * scale * frames;
   canvas.height = PIP_CANVAS * scale;

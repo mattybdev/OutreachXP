@@ -169,14 +169,14 @@ Each body part **grows continuously** with its stat: the brain gets a little big
 
 ### 4.3 Life stages (driven by overall Level)
 
-| Stage | Levels | Size | Notes |
+| Stage | Levels | Size (at 128×128) | Notes |
 |---|---|---|---|
-| Envelope Egg | 0 | 16×16 | Hatches after the first logged send |
-| Baby | 1–4 | 24×24 | Body parts show up to Tier 1 only |
-| Kid | 5–9 | 32×32 | Up to Tier 3 |
-| Teen | 10–14 | 40×40 | Up to Tier 4; first **evolution form** assigned |
-| Adult | 15–24 | 48×48 | Up to Tier 5; form can re-evolve |
-| Legend | 25+ | 48×48 + aura | Final form and cosmetic flourishes |
+| Envelope Egg | 0 | ~34×40 px | Hatches after the first logged send |
+| Baby | 1–4 | ~30 px body | Body parts show up to Tier 1 only |
+| Kid | 5–9 | ~40 px body | Up to Tier 3 |
+| Teen | 10–14 | ~48 px body | Up to Tier 4; first **evolution form** assigned |
+| Adult | 15–24 | ~54 px body | Up to Tier 5; form can re-evolve |
+| Legend | 25+ | ~54 px body + aura | Final form and cosmetic flourishes |
 
 A life stage *caps* how far body parts can show. A Baby with lots of Intellect points still looks like a baby, just a very brainy one. Once it grows into the next stage, the stored growth shows up in a satisfying jump.
 
@@ -516,7 +516,7 @@ The game follows the **SGS&C Style Guide**. There are two layers:
 Pip and the world use only these colors, so the art always looks like SGS&C:
 
 - **Orange ramp:** `#8A2A0B` · `#C9401A` · **`#FF5B23`** · `#FF8A63` · `#FFC4AE`
-- **Neutral ramp:** **`#000000`** · `#141414` · **`#232323`** · `#3A393E` · `#6E6C73` · **`#A3A1A8`** · `#D6D5D9` · `#F2F2F2` · **`#FFFFFF`**
+- **Neutral ramp:** **`#000000`** · `#141414` · **`#232323`** · `#2D2C31` · `#3A393E` · `#6E6C73` · **`#A3A1A8`** · `#D6D5D9` · `#F2F2F2` · **`#FFFFFF`**
 
 Values in **bold** are from the style guide.
 
@@ -531,7 +531,7 @@ Values in **bold** are from the style guide.
 
 ### 9.3 Pixel style
 - **Look:** cute and rounded, with big expressive eyes and a bouncy squash-and-stretch idle. The mostly black body with orange accents keeps it bold and recognizable at small sizes.
-- **Resolution:** Pip is generated on a pixel grid of at most 48×48 (smaller for early stages) and scaled up with nearest-neighbor filtering (×4–×6).
+- **Resolution:** Pip is generated on a 128×128 pixel grid (the body is at most about 96 px tall, smaller for early stages) and scaled up with nearest-neighbor filtering (×2–×4). This gives a detailed "late-console" pixel look rather than chunky 8-bit pixels.
 - **Room:** a light gray (`#F2F2F2`) pixel room with a subtle texture, like the guide's page background, and a charcoal floor line. Cosmetic backgrounds follow the same palette.
 
 ### 9.4 Procedural generation of Pip
@@ -585,12 +585,13 @@ Layer order (back → front):
 **Rules that keep Pip readable and cute**
 - The head always stays at least 45% of total height (a baby-like proportion).
 - Parts never cover the eyes.
-- The silhouette must still read at 1× scale (48 px).
+- The silhouette must still read at 1× scale (128 px canvas).
 - Each part has a size cap so balanced and lopsided Pips both look good.
 
 **Implementation notes (from the first build)**
-- The generator draws on a **64×64** pixel canvas. Pip's body stays within about 48 px, and the extra room holds orbiting items, auras and the plinth.
-- Small hearts use hand-authored **pixel glyphs**, because a sampled heart curve reads as a "V" at small sizes. Other parts use shapes.
+- The generator draws on a **128×128** pixel canvas (layout is designed on a 64-unit grid at a pixel density of 2). Pip's body stays within about 96 px, and the extra room holds orbiting items, auras and the plinth. Outlines and fine details stay 1px wide, which keeps the art crisp and detailed; the Lab shows it at 3× on screen.
+- Small hearts use hand-authored **pixel glyphs**, because a sampled heart curve reads as a "V" at small sizes. Large hearts are built from two round lobes over a point. Other parts use shapes.
+- The body uses a 5-step charcoal ramp for smoother shading. Eyes have two catch-lights, and mouths and closed eyes are drawn as smooth 1px curves.
 - The body's highlight step is kept to a tiny specular spot, so the charcoal body doesn't look washed out.
 - Animation is quantized to **10 fps** for a crisp, retro feel.
 

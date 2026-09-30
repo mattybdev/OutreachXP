@@ -18,7 +18,7 @@ export const ramps = {
   orange: ['#8A2A0B', '#C9401A', '#FF5B23', '#FF8A63', '#FFC4AE'],
   neutral: ['#000000', '#141414', '#232323', '#3A393E', '#6E6C73', '#A3A1A8', '#D6D5D9', '#F2F2F2', '#FFFFFF'],
   // Part ramps used by the Pip generator.
-  body: ['#141414', '#232323', '#3A393E', '#6E6C73'],
+  body: ['#141414', '#232323', '#2D2C31', '#3A393E', '#6E6C73'],
   brain: ['#C9401A', '#FF8A63', '#FFC4AE', '#FFFFFF'],
   heart: ['#8A2A0B', '#C9401A', '#FF5B23', '#FF8A63'],
   steel: ['#3A393E', '#6E6C73', '#A3A1A8', '#D6D5D9'],

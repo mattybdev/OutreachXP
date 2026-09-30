@@ -29,7 +29,7 @@ export function png(width: number, height: number, rgba: Uint8Array): Buffer {
 
 /** Lay frames out in a grid on the room-wall colour and encode as PNG. */
 export function encodeSheet(rows: PipFrame[][], scale: number, background = [242, 242, 242, 255]): Buffer {
-  const cell = 64 * scale;
+  const cell = rows[0][0].width * scale;
   const cols = Math.max(...rows.map((r) => r.length));
   const W = cols * cell, H = rows.length * cell;
   const rgba = new Uint8Array(W * H * 4);

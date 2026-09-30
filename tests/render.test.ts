@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { LIFE_STAGES, MOODS, type PipGenome } from '../src/pip/genome';
-import { renderPip } from '../src/pip/render';
+import { PIP_CANVAS, renderPip } from '../src/pip/render';
 import { deriveTraits, mulberry32 } from '../src/pip/traits';
 
 const genome = (over: Partial<PipGenome> = {}): PipGenome => ({
@@ -40,8 +40,8 @@ describe('renderPip', () => {
         stats: { intellect: rand() * 600, craft: rand() * 600, heart: rand() * 600, authority: rand() * 600 },
       };
       const frame = renderPip(g, { time: rand() * 10, dither: i % 2 === 0 });
-      expect(frame.pixels).toHaveLength(64 * 64);
-      expect(frame.pixels.filter(Boolean).length).toBeGreaterThan(80);
+      expect(frame.pixels).toHaveLength(PIP_CANVAS * PIP_CANVAS);
+      expect(frame.pixels.filter(Boolean).length).toBeGreaterThan(300);
     }
   });
 
@@ -56,7 +56,7 @@ describe('renderPip', () => {
       });
       const pixels = renderPip(g, { time: 0.5 }).pixels;
       const whites = pixels.filter((p) => p === '#FFFFFF').length;
-      expect(whites).toBeGreaterThan(4);
+      expect(whites).toBeGreaterThan(16);
     }
   });
 });
