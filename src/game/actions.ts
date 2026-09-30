@@ -55,6 +55,15 @@ export function createSeason(state: GameState, input: SeasonInput, now = new Dat
   return { ...state, seasons: [...state.seasons, season], currentSeasonId: season.id };
 }
 
+/**
+ * Start the next season: the current season is archived (its Ping retires to the Hall of Pings)
+ * and a new one begins with a fresh mystery egg. Contacts carry over; threads and XP don't.
+ */
+export function startNewSeason(state: GameState, input: SeasonInput, now = new Date(), seed = Math.floor(Math.random() * 1e6)): GameState {
+  const archived = state.seasons.map((s) => (s.id === state.currentSeasonId && !s.archivedAt ? { ...s, archivedAt: now.toISOString() } : s));
+  return createSeason({ ...state, seasons: archived }, input, now, seed);
+}
+
 export function updateSeason(state: GameState, seasonId: string, input: SeasonInput): GameState {
   const clean = cleanSeasonInput(input);
   return { ...state, seasons: state.seasons.map((s) => (s.id === seasonId ? { ...s, ...clean } : s)) };

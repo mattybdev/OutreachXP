@@ -19,6 +19,9 @@ export function openQuickLog(dialog: HTMLDialogElement, getCtx: () => AppContext
   const views = threadViews(ctx.state, today).filter((v) => v.status !== 'closed');
   const ls: LogState = { mode: options.mode ?? 'new', threadId: options.threadId ?? null, action: null };
   const orgs = [...new Set(ctx.state.contacts.map((c) => c.org).filter(Boolean))].sort();
+  // Contacts from earlier seasons who aren't in this season's pipeline yet.
+  const inSeason = new Set(ctx.state.threads.filter((t) => t.seasonId === ctx.state.currentSeasonId).map((t) => t.contactId));
+  const pastContacts = ctx.state.contacts.filter((c) => !inSeason.has(c.id)).sort((a, b) => a.name.localeCompare(b.name));
 
   dialog.innerHTML = `<form id="ql-form" novalidate>
     <header class="modal-head">
@@ -32,10 +35,11 @@ export function openQuickLog(dialog: HTMLDialogElement, getCtx: () => AppContext
 
     <div data-panel="new">
       <div class="grid-2">
-        <label class="field"><span>Name</span><input name="name" autocomplete="off" maxlength="80" placeholder="Dr. Jane Rivera" /></label>
+        <label class="field"><span>Name</span><input name="name" list="ql-people" autocomplete="off" maxlength="80" placeholder="Dr. Jane Rivera" /></label>
         <label class="field"><span>Organization</span><input name="org" list="ql-orgs" autocomplete="off" maxlength="120" placeholder="State University" /></label>
       </div>
       <datalist id="ql-orgs">${orgs.map((o) => `<option value="${esc(o)}"></option>`).join('')}</datalist>
+      <datalist id="ql-people">${pastContacts.map((c) => `<option value="${esc(c.name)}">${esc(c.org)}</option>`).join('')}</datalist>
       <fieldset class="field"><legend>Category</legend>${categoryPicker('category')}</fieldset>
       <div class="grid-2">
         <label class="field"><span>Email <span class="body2">(optional)</span></span><input name="email" type="email" autocomplete="off" maxlength="120" /></label>
@@ -186,6 +190,16 @@ export function openQuickLog(dialog: HTMLDialogElement, getCtx: () => AppContext
   });
   form.addEventListener('input', (e) => {
     if ((e.target as HTMLElement).getAttribute('name') === 'find') refreshUpdate();
+    if ((e.target as HTMLElement).getAttribute('name') === 'name') {
+      // Picking a past contact fills in their organization and category.
+      const match = pastContacts.find((c) => c.name.toLowerCase() === field('name').value.trim().toLowerCase());
+      if (match) {
+        if (!field('org').value) field('org').value = match.org;
+        const radio = form.querySelector<HTMLInputElement>(`input[name="category"][value="${match.category}"]`);
+        if (radio && !form.querySelector('input[name="category"]:checked')) radio.checked = true;
+        if (match.email && !field('email').value) field('email').value = match.email;
+      }
+    }
     refreshPreview();
   });
   form.addEventListener('change', refreshPreview);

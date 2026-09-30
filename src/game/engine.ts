@@ -3,7 +3,7 @@
 
 import { STATS, type Stat, type Stats } from '../ping/genome';
 import { activityWeeks, seasonStart, simulateCare, streakMultiplier, streakOn, weekStartOf } from './care';
-import { daysBetween, todayISO } from './dates';
+import { daysBetween, toISODate, todayISO } from './dates';
 import { evaluateQuests, momentumWeeks, MOMENTUM, MOMENTUM_TYPES, type QuestEvent, type QuestInstance } from './quests';
 import { LIMITS, levelFromXp, STAT_POINTS, WARM_INTRO_MULTIPLIER, XP, type LevelInfo } from './rules';
 import {
@@ -65,6 +65,21 @@ export function indexState(state: GameState) {
   };
 }
 
+/** Contacts who committed or converted in an earlier season: re-engaging them earns a Returning Friend bonus. */
+function returningContacts(state: GameState, seasonId: string, threads: Map<string, Thread>): Set<string> {
+  const season = state.seasons.find((s) => s.id === seasonId);
+  if (!season) return new Set();
+  const earlier = new Set(state.seasons.filter((s) => s.id !== seasonId && s.createdAt < season.createdAt).map((s) => s.id));
+  const ids = new Set<string>();
+  for (const e of state.events) {
+    if (earlier.has(e.seasonId) && (e.type === 'committed' || e.type === 'converted')) {
+      const contactId = threads.get(e.threadId)?.contactId;
+      if (contactId) ids.add(contactId);
+    }
+  }
+  return ids;
+}
+
 /** The first-ever initial send to each organization, across all seasons, earns the New Organization bonus. */
 function newOrgEventIds(state: GameState, contacts: Map<string, Contact>, threads: Map<string, Thread>): Set<string> {
   const seen = new Set<string>();
@@ -90,6 +105,7 @@ export function computeSeason(state: GameState, seasonId: string, today = todayI
   let totalXp = 0;
 
   const seasonEvents = sortEvents(state.events.filter((e) => e.seasonId === seasonId));
+  const returning = returningContacts(state, seasonId, threads);
   const lastDate = seasonEvents.at(-1)?.date ?? '0000-01-01';
   const care = simulateCare(state, seasonId, lastDate);
   const activity = activityWeeks(seasonEvents);
@@ -162,6 +178,7 @@ export function computeSeason(state: GameState, seasonId: string, today = todayI
       if (bonus > 0) parts.push({ label: 'Warm intro ×1.25', xp: bonus });
     }
     if (newOrgs.has(event.id)) parts.push({ label: 'New organization', xp: XP.newOrg });
+    if (event.type === 'sent' && returning.has(contact.id)) parts.push({ label: 'Returning friend', xp: XP.returningFriend });
     if (care.wakeEventIds.has(event.id)) parts.push({ label: 'Welcome back', xp: XP.welcomeBack });
     const multiplier = streakMultiplier(streakOn(event.date, activity, state.settings, floor, streakMemo));
     if (multiplier > 1) {
@@ -181,7 +198,10 @@ export function computeSeason(state: GameState, seasonId: string, today = todayI
   const questEvents: QuestEvent[] = entries.map((e) => ({
     event: e.event, category: STAT_CATEGORY[e.stat], statPoints: e.statPoints, newOrg: newOrgs.has(e.event.id),
   }));
-  const until = lastDate > today ? lastDate : today;
+  // Archived seasons stop generating quests on the day they were archived.
+  const endDay = season?.archivedAt ? toISODate(new Date(season.archivedAt)) : today;
+  const cap = endDay < today ? endDay : today;
+  const until = lastDate > cap ? lastDate : cap;
   const quests = evaluateQuests(state, questEvents, floor, until, season?.pingSeed ?? 1);
   const momentum = momentumWeeks(quests.perfectWeeks);
   for (const entry of entries) {

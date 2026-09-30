@@ -1,8 +1,13 @@
 # OutreachXP: Game Design Document
 
-**Version:** 0.3.4
+**Version:** 0.3.5
 **Date:** 2026-09-30
 **Status:** Approved for build. Implementation has started with the Ping generator and Ping Lab (§12).
+
+### Changes in v0.3.5
+- **Showcase phases dropped** (§6.5 phases and seasonal quests are no longer planned).
+- **Start a new season** ✅ built: the Season tab's "Start a new season" archives the current season; its Ping retires to the **Hall of Pings** (final look, level, title, dates and results), and a new mystery egg hatches. Contacts carry over; the Quick Log suggests past contacts and fills in their details; re-emailing someone who committed or converted in an earlier season earns **+25 XP Returning friend**. Level, stats, quests and streaks start over; achievements and backgrounds are kept.
+- **Season comparison** ✅ built (Stats tab, once there are 2+ seasons): a pace check against last season, a cumulative line chart (emails, replies or commitments) lined up by weeks before the submission deadline (or weeks since start when a deadline is missing), and a side-by-side table.
 
 ### Changes in v0.3.4
 - **More unique Pings:** seeds now also choose a coat color, body shape, markings, cheek color and eye color (§4.1). The look is a surprise at hatching and can't be changed; Pings hatched before this keep the classic look.

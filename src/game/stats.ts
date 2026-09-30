@@ -166,3 +166,108 @@ export function journal(state: GameState, seasonId: string, today: string): Jour
   // Newest first; within a day, keep the natural order reversed (season → growth → achievements).
   return entries.map((e, i) => ({ e, i })).sort((a, b) => b.e.date.localeCompare(a.e.date) || b.i - a.i).map(({ e }) => e);
 }
+
+// ─── Season comparison ─────────────────────────────────────────────────────
+
+export interface SeasonTotals {
+  seasonId: string;
+  name: string;
+  pingName: string;
+  current: boolean;
+  start: string;
+  end: string;
+  emails: number;
+  contacts: number;
+  replies: number;
+  replyRate: number | null;
+  commitments: number;
+  conversions: number;
+  newOrgs: number;
+  longestStreak: number;
+  level: number;
+  totalXp: number;
+  questsCompleted: number;
+}
+
+export type ComparisonMetric = 'emails' | 'replies' | 'commitments';
+
+export interface SeasonSeries {
+  seasonId: string;
+  /** Cumulative count by week offset (see `Comparison.alignment`). */
+  points: { offset: number; emails: number; replies: number; commitments: number }[];
+}
+
+export interface Comparison {
+  seasons: SeasonTotals[];
+  series: SeasonSeries[];
+  /** 'deadline': offsets are weeks relative to each season's submission deadline (negative = before). */
+  alignment: 'deadline' | 'start';
+}
+
+function seasonEnd(state: GameState, seasonId: string, today: string): string {
+  const season = state.seasons.find((s) => s.id === seasonId)!;
+  return season.archivedAt ? toISODate(new Date(season.archivedAt)) : today;
+}
+
+export function seasonTotals(state: GameState, seasonId: string, today: string): SeasonTotals {
+  const season = state.seasons.find((s) => s.id === seasonId)!;
+  const f = funnel(state, seasonId);
+  const summary = computeSeason(state, seasonId, today);
+  return {
+    seasonId,
+    name: season.name,
+    pingName: season.pingName,
+    current: state.currentSeasonId === seasonId,
+    start: seasonStart(state, seasonId),
+    end: seasonEnd(state, seasonId, today),
+    emails: summary.entries.filter((e) => e.event.type === 'sent').length,
+    contacts: f.sent,
+    replies: f.replied,
+    replyRate: f.sent ? f.replied / f.sent : null,
+    commitments: f.committed,
+    conversions: f.converted,
+    newOrgs: summary.entries.filter((e) => e.parts.some((p) => p.label === 'New organization')).length,
+    longestStreak: personalBests(state, seasonId, today).longestStreak,
+    level: summary.level.level,
+    totalXp: summary.totalXp,
+    questsCompleted: summary.quests.filter((q) => q.completed).length,
+  };
+}
+
+/** Every season (oldest first) with totals and cumulative weekly series for charting. */
+export function compareSeasons(state: GameState, today: string): Comparison {
+  const seasons = [...state.seasons].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  const alignment = seasons.length > 1 && seasons.every((s) => s.keyDates.submissionDeadline) ? 'deadline' : 'start';
+  const series = seasons.map((season) => {
+    const anchor = alignment === 'deadline' ? weekStartOf(season.keyDates.submissionDeadline!) : weekStartOf(seasonStart(state, season.id));
+    const events = seasonEvents(state, season.id);
+    const first = weekStartOf(seasonStart(state, season.id));
+    // The current season runs to today; past seasons end at their last logged outreach.
+    const endDate = state.currentSeasonId === season.id ? [today, events.at(-1)?.date ?? today].sort().at(-1)! : events.at(-1)?.date ?? seasonStart(state, season.id);
+    const last = weekStartOf(endDate);
+    const points: SeasonSeries['points'] = [];
+    let emails = 0, replies = 0, commitments = 0;
+    for (let w = first, guard = 0; w <= last && guard < 530; w = addDays(w, 7), guard++) {
+      for (const e of events) {
+        if (weekStartOf(e.date) !== w) continue;
+        if (e.type === 'sent') emails++;
+        if (e.type === 'replied') replies++;
+        if (e.type === 'committed') commitments++;
+      }
+      points.push({ offset: Math.round((Date.parse(w) - Date.parse(anchor)) / (7 * 86_400_000)), emails, replies, commitments });
+    }
+    return { seasonId: season.id, points };
+  });
+  return { seasons: seasons.map((s) => seasonTotals(state, s.id, today)), series, alignment };
+}
+
+/** How the current season compares with the previous one at the same point (same week offset). */
+export function paceCheck(c: Comparison, metric: ComparisonMetric = 'emails'): { diff: number; previousName: string } | null {
+  const currentIdx = c.seasons.findIndex((s) => s.current);
+  if (currentIdx < 1) return null;
+  const now = c.series[currentIdx].points.at(-1);
+  const prev = c.series[currentIdx - 1].points;
+  if (!now || !prev.length) return null;
+  const same = [...prev].reverse().find((p) => p.offset <= now.offset) ?? { emails: 0, replies: 0, commitments: 0 };
+  return { diff: now[metric] - same[metric], previousName: c.seasons[currentIdx - 1].name };
+}

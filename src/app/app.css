@@ -333,3 +333,32 @@ details.group[open] summary h2::before { content: '▾'; }
   .bests { grid-template-columns: minmax(0, 1fr); }
 }
 
+
+/* Seasons: Hall of Pings, new season, comparison */
+.hall { list-style: none; padding: 0; margin: 12px 0 8px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.hall-card { display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: center; border: 2px solid var(--sg-line); padding: 10px; }
+.hall-card.current { border-color: var(--sg-orange); }
+.hall-card canvas { width: 96px; height: 96px; image-rendering: pixelated; border: 1px solid var(--sg-line); }
+.hall-card > div { display: grid; gap: 2px; min-width: 0; }
+.hall-season { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--sg-gray-dark); }
+.hall-season b { color: var(--sg-orange); margin-left: 4px; }
+.hall-stats { font-size: 12px; }
+.new-season summary { cursor: pointer; list-style: none; }
+.new-season summary::-webkit-details-marker { display: none; }
+.new-season summary h2 { margin: 0; }
+.new-season summary h2::before { content: '▸ '; color: var(--sg-orange); }
+.new-season[open] summary h2::before { content: '▾ '; }
+.pace { font-size: 16px; margin: 8px 0 4px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; margin: 8px 0 4px; }
+.legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.legend-item i { width: 16px; height: 3px; display: inline-block; }
+.compare-chart { width: 100%; min-height: 220px; }
+.compare-chart svg { display: block; overflow: visible; }
+.compare-chart .grid { stroke: #e6e5e8; stroke-width: 1; }
+.compare-chart .baseline { stroke: var(--sg-gray); }
+.compare-chart .marker { stroke: var(--sg-gray); stroke-dasharray: 3 3; }
+.compare-chart .tick { font-size: 11px; fill: var(--sg-gray-dark); font-family: var(--font); }
+.compare-chart .end-label { font-size: 12px; fill: var(--sg-charcoal); font-weight: 600; font-family: var(--font); }
+.compare-chart .hit { fill: transparent; outline: none; }
+.compare-chart .hit:hover, .compare-chart .hit:focus { fill: rgba(35, 35, 35, 0.05); }
+.comparison .data-table td { text-align: right; }

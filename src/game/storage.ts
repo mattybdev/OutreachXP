@@ -99,6 +99,7 @@ export function parseState(raw: unknown): GameState {
       pingSeed: Number.isFinite(s.pingSeed) ? (s.pingSeed as number) : 1,
       pingStyle: Number.isInteger(s.pingStyle) && (s.pingStyle as number) >= 1 ? (s.pingStyle as number) : 1,
       createdAt: str(s.createdAt) ? s.createdAt : new Date().toISOString(),
+      ...(str(s.archivedAt) ? { archivedAt: s.archivedAt } : {}),
     };
   });
   const contacts = arr('contacts').map((c) => {

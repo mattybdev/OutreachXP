@@ -15,6 +15,7 @@ export const XP = {
   converted: 300,
   closed: 5,
   newOrg: 25,
+  returningFriend: 25,
   speedBonus: 10,
   welcomeBack: 20,
 } as const;

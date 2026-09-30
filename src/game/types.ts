@@ -35,6 +35,8 @@ export interface Season {
   /** Look style version for this season's Ping (1 = classic charcoal; newer styles vary coat and shape). */
   pingStyle?: number;
   createdAt: string;
+  /** When a newer season replaced this one (its Ping retired to the Hall of Pings). */
+  archivedAt?: string;
 }
 
 export interface Contact {
