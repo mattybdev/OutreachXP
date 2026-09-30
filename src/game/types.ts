@@ -32,6 +32,8 @@ export interface Season {
   keyDates: KeyDates;
   pingName: string;
   pingSeed: number;
+  /** Look style version for this season's Ping (1 = classic charcoal; newer styles vary coat and shape). */
+  pingStyle?: number;
   createdAt: string;
 }
 

@@ -97,6 +97,7 @@ export function parseState(raw: unknown): GameState {
       id: s.id as string, name: s.name as string, keyDates,
       pingName: str(s.pingName) ? s.pingName : 'Ping',
       pingSeed: Number.isFinite(s.pingSeed) ? (s.pingSeed as number) : 1,
+      pingStyle: Number.isInteger(s.pingStyle) && (s.pingStyle as number) >= 1 ? (s.pingStyle as number) : 1,
       createdAt: str(s.createdAt) ? s.createdAt : new Date().toISOString(),
     };
   });

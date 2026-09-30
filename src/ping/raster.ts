@@ -200,11 +200,11 @@ export function ellipse(cx: number, cy: number, rx: number, ry: number): Shape {
 }
 
 /** Superellipse with separate top/bottom radii: Ping's egg-shaped body. */
-export function blob(cx: number, cy: number, rx: number, ryTop: number, ryBottom: number, power = 2.3): Shape {
+export function blob(cx: number, cy: number, rx: number, ryTop: number, ryBottom: number, power = 2.3, topWidth = 1): Shape {
   return {
     bbox: [cx - rx, cy - ryTop, cx + rx, cy + ryBottom],
     sample(px, py) {
-      const u = (px - cx) / rx;
+      const u = (px - cx) / (py < cy ? rx * topWidth : rx);
       const v = (py - cy) / (py < cy ? ryTop : ryBottom);
       return Math.abs(u) ** power + Math.abs(v) ** power <= 1 ? [u, v] : null;
     },

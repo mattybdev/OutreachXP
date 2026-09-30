@@ -46,6 +46,8 @@ export interface PingGenome {
   mood: Mood;
   /** Omit to derive the form from stats (the normal case). */
   form?: Form;
+  /** Look style version: 1 = classic charcoal Ping; omit for the latest (varied coats and shapes). */
+  style?: number;
 }
 
 /** Stat points needed for tiers 0–5 (GDD §4.2). */

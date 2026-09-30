@@ -19,6 +19,7 @@ import {
   type Stats,
 } from '../ping/genome';
 import { drawFrame, PING_CANVAS, renderPing, type PingFrame } from '../ping/render';
+import { deriveTraits, LATEST_STYLE } from '../ping/traits';
 
 const STAT_LABELS: Record<keyof Stats, string> = {
   intellect: 'Intellect',
@@ -44,6 +45,7 @@ interface LabState {
   dither: boolean;
   room: boolean;
   background?: string;
+  classic?: boolean;
   varietyMode: 'seeds' | 'random';
 }
 
@@ -189,6 +191,7 @@ function buildControls(): void {
     ['opt-morph', 'morph'],
     ['opt-dither', 'dither'],
     ['opt-room', 'room'],
+    ['opt-classic', 'classic'],
   ];
   for (const [id, key] of toggles) {
     const box = $<HTMLInputElement>(id);
@@ -236,7 +239,8 @@ function syncControls(): void {
   const form = currentForm(genome.stats);
   $('form-name').textContent = FORM_NAMES[form];
   const autoNote = state.formOverride === 'auto' ? (form === 'none' ? 'Forms unlock at Teen' : 'Form from stat balance') : 'Form overridden';
-  $('form-meta').textContent = `${capitalize(genome.lifeStage)} · ${capitalize(genome.mood)} · ${autoNote} · Tier cap ${STAGE_TIER_CAP[genome.lifeStage]}`;
+  const t = deriveTraits(genome.seed, state.classic ? 1 : LATEST_STYLE);
+  $('form-meta').textContent = `${capitalize(genome.lifeStage)} · ${capitalize(genome.mood)} · ${autoNote} · Tier cap ${STAGE_TIER_CAP[genome.lifeStage]} · ${t.coat.name} coat, ${t.shape.name.toLowerCase()} shape, ${t.marking === 'none' ? 'no marking' : `${t.marking} marking`}`;
   renderTierBars();
   saveState();
   if (state.varietyMode === 'seeds') renderVariety();
@@ -281,7 +285,7 @@ function tick(now: number): void {
   }
   const time = state.animate ? (now - startTime) / 1000 : frozenTime;
   if (state.animate) frozenTime = time;
-  const genome: PingGenome = { ...state.genome, stats: { ...shown }, form: currentForm(state.genome.stats) };
+  const genome: PingGenome = { ...state.genome, stats: { ...shown }, form: currentForm(state.genome.stats), style: state.classic ? 1 : LATEST_STYLE };
   // Animation runs at 10 fps, so only regenerate when something visible changed.
   const key = JSON.stringify([genome, Math.floor(time * 10), state.dither, state.room, state.background]);
   if (key !== lastKey) {
@@ -315,7 +319,7 @@ function renderVariety(): void {
   grid.innerHTML = '';
   for (const item of varietySeeds) {
     const stats = state.varietyMode === 'seeds' ? state.genome.stats : item.stats;
-    const genome: PingGenome = { seed: item.seed, lifeStage: state.genome.lifeStage, mood: state.genome.mood, stats: { ...stats } };
+    const genome: PingGenome = { seed: item.seed, lifeStage: state.genome.lifeStage, mood: state.genome.mood, stats: { ...stats }, style: state.classic ? 1 : LATEST_STYLE };
     const lifeStage = genome.lifeStage;
     const button = document.createElement('button');
     button.type = 'button';
@@ -342,7 +346,7 @@ function renderVariety(): void {
 // ─── Export ────────────────────────────────────────────────────────────────
 
 function currentGenome(): PingGenome {
-  return { ...state.genome, stats: { ...state.genome.stats }, form: currentForm(state.genome.stats) };
+  return { ...state.genome, stats: { ...state.genome.stats }, form: currentForm(state.genome.stats), style: state.classic ? 1 : LATEST_STYLE };
 }
 
 function exportPng(): void {

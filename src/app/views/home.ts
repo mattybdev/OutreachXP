@@ -25,6 +25,7 @@ export function currentGenome(ctx: AppContext): PingGenome | null {
   const care = careNow(ctx.state, today)!.care;
   return {
     seed: season.pingSeed,
+    style: season.pingStyle ?? 1,
     lifeStage: lifeStageForLevel(summary.level.level),
     stats: { ...summary.stats },
     mood: summary.hasOutreach ? moodFor(care, activeToday) : 'neutral',

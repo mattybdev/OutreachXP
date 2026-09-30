@@ -73,7 +73,7 @@ export function renderPing(genome: PingGenome, opts: RenderOptions = {}): PingFr
   const canvas = new PixelCanvas(PING_CANVAS, PING_CANVAS);
   const frameIndex = Math.floor((opts.time ?? 0) * FPS);
   const t = frameIndex / FPS;
-  const traits = deriveTraits(genome.seed);
+  const traits = deriveTraits(genome.seed, genome.style);
   const form = genome.form ?? resolveForm(genome.stats, genome.lifeStage);
 
   if (genome.lifeStage === 'egg') {
@@ -125,6 +125,8 @@ function drawCreature(
   const H = BODY_HEIGHT[stage];
   const s = H / 27; // 1 design unit at adult size, times the pixel density
   const fillOpts = { dither };
+  const coat = traits.coat.ramp;
+  const shape = traits.shape;
 
   // ── Animation ──
   const speed = mood === 'sleepy' ? 0.25 : 0.5;
@@ -138,9 +140,9 @@ function drawCreature(
 
   // ── Layout ──
   const cx = PING_CANVAS / 2 + sway;
-  const rx = H * 0.56 * traits.squish * (1 + tweaks.bodyWide);
-  const ryTop = H * 0.55 * (1 + tweaks.headBoost + 0.12 * g.intellect) * (mood === 'sad' ? 0.95 : 1) * breathe;
-  const ryBottom = H * 0.45;
+  const rx = H * 0.56 * traits.squish * traits.shape.width * (1 + tweaks.bodyWide);
+  const ryTop = H * 0.55 * traits.shape.top * (1 + tweaks.headBoost + 0.12 * g.intellect) * (mood === 'sad' ? 0.95 : 1) * breathe;
+  const ryBottom = H * 0.45 * traits.shape.bottom;
   const legLen = s * (0.5 + 5 * g.authority) * (1 + tweaks.legMul);
   const footRx = Math.max(1.4 * D, s * (1.6 + 0.9 * g.authority));
   const footRy = Math.max(D, s * 1.1);
@@ -204,8 +206,8 @@ function drawCreature(
   const legR = Math.max(1.2 * D, s * (1.3 + 0.9 * g.authority));
   for (const side of [-1, 1]) {
     const lx = cx + side * stanceX;
-    if (legLen > footRy * 0.6) c.fill(capsule(lx, cy + ryBottom * 0.6, lx, footY, legR), ramps.body, legs, fillOpts);
-    c.fill(ellipse(lx + side * 0.4 * D, footY, footRx, footRy), ramps.body, legs, fillOpts);
+    if (legLen > footRy * 0.6) c.fill(capsule(lx, cy + ryBottom * 0.6, lx, footY, legR), coat, legs, fillOpts);
+    c.fill(ellipse(lx + side * 0.4 * D, footY, footRx, footRy), coat, legs, fillOpts);
   }
 
   // ── Ears ──
@@ -213,14 +215,15 @@ function drawCreature(
 
   // ── Body ──
   const body = c.newPart({ outline: true, innerOutline: true });
-  c.fill(blob(cx, cy, rx, ryTop, ryBottom), ramps.body, body, { ...fillOpts, thresholds: [-0.15, 0.3, 0.66, 0.985] });
+  c.fill(blob(cx, cy, rx, ryTop, ryBottom, shape.power, shape.topWidth), coat, body, { ...fillOpts, thresholds: [-0.15, 0.3, 0.66, 0.985] });
   const onBody = (x: number, y: number) => c.partAt(x, y) === body;
+  drawMarking(c, traits, onBody, { cx, cy, rx, ryTop, ryBottom, eyeY, eyeRy, top, s });
 
   // ── Clothing and marks (clipped to the body) ──
   if (signature === 'intellect') {
     const robe = c.newPart({ outline: true });
     const robeTop = Math.round(cy + ryBottom * 0.25);
-    c.fill(blob(cx, cy, rx, ryTop, ryBottom), ramps.intellect, robe, { ...fillOpts, clip: (x, y) => y >= robeTop && onBody(x, y) });
+    c.fill(blob(cx, cy, rx, ryTop, ryBottom, shape.power, shape.topWidth), ramps.intellect, robe, { ...fillOpts, clip: (x, y) => y >= robeTop && onBody(x, y) });
     for (let x = 0; x < c.width; x++) if (c.partAt(x, robeTop) === robe) c.paint(x, robeTop, ramps.intellect[3]);
   }
   if (signature === 'craft') {
@@ -318,8 +321,8 @@ function drawCreature(
     if (mood === 'sad') { hx = sx + side * armLen * 0.2; hy = sy + armLen; }
     hy = Math.min(hy, footY - D);
     hands.push([hx, hy]);
-    c.fill(capsule(sx, sy, hx, hy, armR), ramps.body, arms, fillOpts);
-    c.fill(ellipse(hx, hy, armR * 1.3, armR * 1.3), ramps.body, arms, fillOpts);
+    c.fill(capsule(sx, sy, hx, hy, armR), coat, arms, fillOpts);
+    c.fill(ellipse(hx, hy, armR * 1.3, armR * 1.3), coat, arms, fillOpts);
     if (gauntlet >= 0) {
       const mx = (sx + hx) / 2, my = (sy + hy) / 2;
       c.fill(capsule(mx, my, hx, hy, armR + 0.4 * D), ramps.steel, gauntlet, fillOpts);
@@ -385,7 +388,7 @@ function drawCreature(
     const prx = Math.max(0.8 * D, eyeRx * pr), pry = Math.max(0.9 * D, eyeRy * pr);
     forEachPixel(ellipse(px, py, prx, pry), (x, y) => {
       const lower = y + 0.5 - py > pry * 0.3;
-      c.plot(x, y, lower ? ramps.neutral[2] : ramps.neutral[0]);
+      c.plot(x, y, lower ? traits.eyes[1] : traits.eyes[0]);
     });
     // Two catch-lights: a big one up-left and a small one down-right.
     const hl = Math.max(1, Math.round(prx * 0.5));
@@ -393,7 +396,7 @@ function drawCreature(
     c.plot(px + prx * 0.35, py + pry * 0.35, ramps.neutral[8]);
     if (mood === 'sad') {
       forEachPixel(ellipse(ex, eyeY, eyeRx, eyeRy), (x, y) => {
-        if (y + 0.5 < eyeY - eyeRy * 0.15) c.plot(x, y, ramps.body[1]);
+        if (y + 0.5 < eyeY - eyeRy * 0.15) c.plot(x, y, coat[1]);
       });
     }
     if (tier.intellect >= 3) {
@@ -417,7 +420,7 @@ function drawCreature(
   for (const side of [-1, 1]) {
     const bx = cx + side * (eyeDx + eyeRx * 0.55);
     forEachPixel(ellipse(bx, cheekY, s * (0.55 + 0.35 * blush), Math.max(D * 0.6, s * 0.5)), (x, y) => {
-      if (onBody(x, y)) c.paint(x, y, (x + y) % 2 && y + 0.5 < cheekY ? ramps.orange[3] : ramps.orange[2]);
+      if (onBody(x, y)) c.paint(x, y, (x + y) % 2 && y + 0.5 < cheekY && traits.cheek === ramps.orange[2] ? ramps.orange[3] : traits.cheek);
     });
   }
   for (const f of traits.freckles) {
@@ -478,6 +481,35 @@ function drawCreature(
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
+interface BodyBox { cx: number; cy: number; rx: number; ryTop: number; ryBottom: number; eyeY: number; eyeRy: number; top: number; s: number }
+
+/** Seeded coat markings, painted in the coat's light tone and clipped to the body. */
+function drawMarking(c: PixelCanvas, traits: Traits, onBody: (x: number, y: number) => boolean, b: BodyBox): void {
+  const ramp = traits.coat.ramp;
+  // A two-tone dither reads as a soft fur pattern without hiding the coat.
+  const tone = (x: number, y: number) => ((x + y) % 2 ? ramp[3] : ramp[4]);
+  const paint = (shape: Shape) => forEachPixel(shape, (x, y) => { if (onBody(x, y)) c.paint(x, y, tone(x, y)); });
+  switch (traits.marking) {
+    case 'belly':
+      paint(ellipse(b.cx, b.cy + b.ryBottom * 0.4, b.rx * 0.55, b.ryBottom * 0.62));
+      break;
+    case 'spots': {
+      const rand = mulberry32(traits.foldSeed + 7);
+      for (let i = 0; i < 5; i++) {
+        const side = i % 2 ? 1 : -1;
+        paint(ellipse(b.cx + side * b.rx * (0.5 + rand() * 0.3), b.cy - b.ryTop * (0.05 + rand() * 0.55), b.s * (1 + rand() * 0.8), b.s * (1 + rand() * 0.8)));
+      }
+      break;
+    }
+    case 'mask':
+      paint(ellipse(b.cx, b.eyeY, b.rx * 0.82, b.eyeRy * 2.1));
+      break;
+    case 'crown':
+      paint(ellipse(b.cx, b.top, b.rx, b.ryTop * 0.42));
+      break;
+  }
+}
+
 function forEachPixel(shape: Shape, fn: (x: number, y: number) => void): void {
   const [x0, y0, x1, y1] = shape.bbox;
   for (let y = Math.floor(y0); y <= Math.ceil(y1); y++) {
@@ -506,17 +538,17 @@ function drawEars(
     const ex = cx + side * rx * 0.6;
     switch (traits.earStyle) {
       case 'round':
-        c.fill(ellipse(ex + side * 0.5 * D, top + ryTop * 0.15 - lift, s * 2.6 * size, s * 2.6 * size), ramps.body, ears, fillOpts);
+        c.fill(ellipse(ex + side * 0.5 * D, top + ryTop * 0.15 - lift, s * 2.6 * size, s * 2.6 * size), traits.coat.ramp, ears, fillOpts);
         break;
       case 'pointy':
         c.fill(triangle(ex - s * 2.6, top + ryTop * 0.35, ex + s * 2.6, top + ryTop * 0.35, ex + side * s * 1.6, top - s * 3.6 * size - lift),
-          ramps.body, ears, fillOpts);
+          traits.coat.ramp, ears, fillOpts);
         break;
       case 'floppy':
-        c.fill(ellipse(cx + side * rx * 0.88, top + ryTop * 0.45 - lift, s * 1.8, s * 3.4 * size), ramps.body, ears, fillOpts);
+        c.fill(ellipse(cx + side * rx * 0.88, top + ryTop * 0.45 - lift, s * 1.8, s * 3.4 * size), traits.coat.ramp, ears, fillOpts);
         break;
       case 'tuft':
-        c.fill(capsule(cx + side * D, top + 1.5 * D, cx + side * 2.2 * D, top - s * 2.6 * size - lift, Math.max(D, s)), ramps.body, ears, fillOpts);
+        c.fill(capsule(cx + side * D, top + 1.5 * D, cx + side * 2.2 * D, top - s * 2.6 * size - lift, Math.max(D, s)), traits.coat.ramp, ears, fillOpts);
         break;
     }
   }
