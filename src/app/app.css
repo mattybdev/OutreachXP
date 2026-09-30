@@ -206,3 +206,35 @@ details.group[open] summary h2::before { content: '▾'; }
 .holiday-list li { display: flex; gap: 12px; align-items: baseline; padding: 4px 0; }
 .inline-form { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; }
 .inline-form .field { margin: 0; }
+
+/* Quests and trophies (part 3) */
+.section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.quest-list { list-style: none; padding: 0; margin: 12px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.quest { border: 2px solid var(--sg-line); padding: 12px; display: grid; gap: 4px; align-content: start; }
+.quest.done { border-color: var(--sg-orange); background: #fff7f3; }
+.quest p { margin: 0; }
+.quest-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.quest-bar, .trophy-bar { height: 8px; background: var(--sg-line); margin-top: 6px; }
+.quest-bar i, .trophy-bar i { display: block; height: 100%; background: var(--sg-orange); }
+.quest.done .quest-foot { color: var(--sg-orange); font-weight: 700; }
+.quest-mini-list { list-style: none; padding: 0; margin: 0 0 8px; }
+.quest-mini { display: grid; grid-template-columns: 20px 1fr auto; gap: 8px; align-items: baseline; padding: 4px 0; font-size: 14px; }
+.quest-check { width: 16px; height: 16px; border: 2px solid var(--sg-charcoal); display: inline-grid; place-items: center; font-size: 12px; font-weight: 800; }
+.quest-mini.done .quest-check { background: var(--sg-orange); border-color: var(--sg-orange); color: #fff; }
+.quest-mini.done strong { text-decoration: line-through; text-decoration-color: var(--sg-orange); }
+.quest-mini-prog { white-space: nowrap; }
+.h3-link { font-size: 12px; font-stretch: 100%; text-transform: none; font-weight: 600; margin-left: 8px; }
+.banner-good { background: #fff1eb; }
+.ql-quests { font-size: 13px; margin-top: 4px; color: var(--sg-charcoal); }
+.trophy-grid { list-style: none; padding: 0; margin: 8px 0 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.trophy { border: 2px solid var(--sg-orange); padding: 12px; display: grid; gap: 4px; align-content: start; background: #fff7f3; }
+.trophy-medal { font-size: 32px; line-height: 1; width: 52px; height: 52px; display: grid; place-items: center; background: var(--sg-charcoal); border: 3px solid var(--sg-orange); }
+.trophy-date { font-size: 12px; font-weight: 700; color: var(--sg-orange); }
+.trophy.locked { border-color: var(--sg-line); background: var(--sg-white); }
+.trophy.locked .trophy-medal { filter: grayscale(1) brightness(0.3); border-color: var(--sg-line); background: var(--sg-surface); }
+.trophy.locked strong { color: var(--sg-gray-dark); }
+
+@media (max-width: 820px) {
+  .quest-list { grid-template-columns: minmax(0, 1fr); }
+  .tabs a { font-size: 13px; padding: 14px 2px; }
+}

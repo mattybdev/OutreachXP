@@ -704,7 +704,8 @@ QuestState    { id, templateId, period: 'daily'|'weekly'|'monthly'|'seasonal',
 **Build progress:**
 - Part 1 (core loop) ✅ built: season setup, Quick Log with live XP preview, pipeline, the full XP engine (§3), levels and titles, undo, and local save with export/import.
 - Part 2 (Ping comes alive) ✅ built: Fullness/Joy/Energy meters that drain only on active days and set Ping's mood; daily check-ins restore energy; hibernation after 7 active days at zero, with a +20 XP welcome-back bonus; outreach streaks with configurable active days and holidays and the +5%-per-week XP multiplier; reaction animations (paper airplane, falling envelope with hearts, happy dance, confetti, and a sparkle burst for hatching, level-ups and waking).
-- Next: part 3 (daily and weekly quests, Perfect Day and Momentum, achievements).
+- Part 3 (quests and achievements) ✅ built: 3 daily and 3 weekly quests per period, picked with a seeded shuffle from the §6.1/§6.2 pools (follow-up quests only appear when a follow-up is due); quests complete automatically from logged outreach; Perfect Day (+15 XP) gives Momentum (+10% XP on replies, commitments and conversions) the next day; Category Focus targets Ping's lowest stat and adds 5 stat points; 22 achievements with unlock dates and progress in a Trophy Case; the Quick Log preview shows which quests a log will complete.
+- **The MVP is complete.** Next up is v0.2 (§12).
 
 **Meter tuning (as built):** start 70/70/70. Daily drain on active days: Fullness −30, Joy −15, Energy −20. Refills: send +12 Fullness; follow-up +10 Fullness and +8 Energy; reply or positive reply +15 Joy; CC +5 Joy per person (up to 4); referral +15 Joy; commitment +25 Joy; conversion +35 Joy; closing the loop +3 Joy; daily check-in +30 Energy. Mood: sleepy when hibernating or Energy < 25, sad when Fullness or Joy < 20, happy after outreach today or when Fullness and Joy are both 60+, otherwise neutral.
 

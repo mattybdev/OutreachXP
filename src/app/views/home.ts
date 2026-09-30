@@ -7,6 +7,7 @@ import { CATEGORY_LABEL, type Category } from '../../game/types';
 import { FORM_NAMES, rawTier, resolveForm, STATS, TIER_THRESHOLDS, type PingGenome } from '../../ping/genome';
 import { statAccent } from '../../theme';
 import { moodFor, type Meters } from '../../game/care';
+import { questCard, todaysQuests } from './quests';
 import { careNow, categoryChip, currentSeason, esc, plural, relativeDay, seasonSummary, threadViews, upcomingDates, type AppContext } from '../context';
 
 const STAT_CATEGORY: Record<string, Category> = { intellect: 'academia', craft: 'industry', heart: 'organizations', authority: 'government' };
@@ -135,9 +136,14 @@ function renderToday(ctx: AppContext, today: string): string {
   const risk = streak.atRisk
     ? `<p class="at-risk">🔥 Log any outreach today to keep your ${plural(streak.current, 'day')} streak going.</p>`
     : '';
+  const { daily } = todaysQuests(ctx, today);
+  const quests = daily.length
+    ? `<h3>Today’s quests <a class="h3-link" href="#quests">See all</a></h3><ul class="quest-mini-list">${daily.map((q) => questCard(q, true)).join('')}</ul>`
+    : '';
   return `<section class="panel today">
     <h2>Today</h2>
     ${risk}
+    ${quests}
     <p>${plural(sentToday, 'email')} sent today · <span class="body2">${fullLeft ? `${fullLeft} more at full XP` : 'Daily full-XP sends used: quality over quantity!'}</span></p>
     ${due.length
       ? `<h3>${plural(due.length, 'follow-up')} due</h3><ul class="due-list">${dueList}</ul>${due.length > 5 ? `<a href="#pipeline">See all in the pipeline</a>` : ''}`

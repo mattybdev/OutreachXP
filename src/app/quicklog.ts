@@ -163,7 +163,11 @@ export function openQuickLog(dialog: HTMLDialogElement, getCtx: () => AppContext
       const added = summary.entries.filter((e) => !before.has(e.event.id));
       const xp = added.reduce((sum, e) => sum + e.xp, 0);
       const parts = added.flatMap((e) => e.parts).filter((p) => p.xp || p.label.includes('limit'));
-      preview.innerHTML = `<span class="xp-gain">+${xp} XP</span> <span class="body2">${parts.map((p) => `${esc(p.label)}${p.xp ? ` +${p.xp}` : ''}`).join(' · ')}</span>`;
+      const wasDone = new Set(computeSeason(state, next.currentSeasonId!).quests.filter((q) => q.completed).map((q) => q.id));
+      const quests = summary.quests.filter((q) => q.completed && !wasDone.has(q.id));
+      const questXp = quests.reduce((sum, q) => sum + q.reward, 0);
+      preview.innerHTML = `<span class="xp-gain">+${xp + questXp} XP</span> <span class="body2">${parts.map((p) => `${esc(p.label)}${p.xp ? ` +${p.xp}` : ''}`).join(' · ')}</span>`
+        + (quests.length ? `<div class="ql-quests">Completes ${quests.map((q) => `<strong>${esc(q.title)}</strong> +${q.reward}`).join(', ')}</div>` : '');
     } catch (err) {
       preview.innerHTML = `<span class="body2">${esc((err as Error).message)}</span>`;
     }

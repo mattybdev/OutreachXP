@@ -3,10 +3,12 @@
 
 import { STATS, type Stat, type Stats } from '../ping/genome';
 import { seasonStart, simulateCare, streakMultiplier, streakOn } from './care';
-import { daysBetween } from './dates';
+import { daysBetween, todayISO } from './dates';
+import { evaluateQuests, momentumDates, MOMENTUM, MOMENTUM_TYPES, type QuestEvent, type QuestInstance } from './quests';
 import { LIMITS, levelFromXp, STAT_POINTS, WARM_INTRO_MULTIPLIER, XP, type LevelInfo } from './rules';
 import {
   CATEGORY_STAT,
+  type Category,
   STAGES,
   type Contact,
   type EventType,
@@ -32,10 +34,17 @@ export interface LedgerEntry {
 export interface SeasonSummary {
   entries: LedgerEntry[];
   byEventId: Map<string, LedgerEntry>;
+  /** XP from logged outreach. */
+  eventXp: number;
+  /** XP from completed quests and Perfect Days. */
+  questXp: number;
   totalXp: number;
   stats: Stats;
   level: LevelInfo;
   hasOutreach: boolean;
+  quests: QuestInstance[];
+  perfectDays: Set<string>;
+  momentumDates: Set<string>;
 }
 
 export function orgKey(org: string): string {
@@ -69,7 +78,7 @@ function newOrgEventIds(state: GameState, contacts: Map<string, Contact>, thread
   return firsts;
 }
 
-export function computeSeason(state: GameState, seasonId: string): SeasonSummary {
+export function computeSeason(state: GameState, seasonId: string, today = todayISO()): SeasonSummary {
   const { contacts, threads } = indexState(state);
   const newOrgs = newOrgEventIds(state, contacts, threads);
   const sendsPerDay = new Map<string, number>();
@@ -165,16 +174,42 @@ export function computeSeason(state: GameState, seasonId: string): SeasonSummary
     stats[stat] += statPoints;
   }
 
+  // Quests are scored from the same events; a Perfect Day gives the next day Momentum.
+  const season = state.seasons.find((s) => s.id === seasonId);
+  const questEvents: QuestEvent[] = entries.map((e) => ({
+    event: e.event, category: STAT_CATEGORY[e.stat], statPoints: e.statPoints, newOrg: newOrgs.has(e.event.id),
+  }));
+  const until = lastDate > today ? lastDate : today;
+  const quests = evaluateQuests(state, questEvents, floor, until, season?.pingSeed ?? 1);
+  const momentum = momentumDates(quests.perfectDays);
+  for (const entry of entries) {
+    if (!momentum.has(entry.event.date) || !MOMENTUM_TYPES.includes(entry.event.type)) continue;
+    const bonus = Math.round(entry.xp * MOMENTUM);
+    if (bonus <= 0) continue;
+    entry.parts.push({ label: 'Momentum +10%', xp: bonus });
+    entry.xp += bonus;
+    totalXp += bonus;
+  }
+  for (const [stat, points] of Object.entries(quests.bonusStats)) stats[stat as Stat] += points ?? 0;
+
   const hasOutreach = entries.length > 0;
+  const allXp = totalXp + quests.questXp;
   return {
     entries,
     byEventId: new Map(entries.map((e) => [e.event.id, e])),
-    totalXp,
+    eventXp: totalXp,
+    questXp: quests.questXp,
+    totalXp: allXp,
     stats,
-    level: levelFromXp(totalXp, hasOutreach),
+    level: levelFromXp(allXp, hasOutreach),
     hasOutreach,
+    quests: quests.quests,
+    perfectDays: quests.perfectDays,
+    momentumDates: momentum,
   };
 }
+
+const STAT_CATEGORY: Record<Stat, Category> = { intellect: 'academia', craft: 'industry', heart: 'organizations', authority: 'government' };
 
 const STAGE_PART_LABEL: Record<Exclude<EventType, 'sent' | 'followup' | 'cc' | 'referred' | 'closed'>, string> = {
   replied: 'Reply',

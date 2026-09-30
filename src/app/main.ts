@@ -14,10 +14,13 @@ import { drawReactions, isActive, pingOffset, reactionFor, type Reaction } from 
 import { bindData, renderData } from './views/data';
 import { bindHome, currentGenome, renderHome } from './views/home';
 import { bindPipeline, renderPipeline } from './views/pipeline';
+import { bindQuests, renderQuests } from './views/quests';
 import { bindSeason, renderSeason } from './views/season';
+import { achievements, renderTrophies } from './views/trophies';
+import { PERFECT_DAY_XP } from '../game/quests';
 
-type Route = 'home' | 'pipeline' | 'season' | 'data';
-const ROUTES: Route[] = ['home', 'pipeline', 'season', 'data'];
+type Route = 'home' | 'pipeline' | 'quests' | 'trophies' | 'season' | 'data';
+const ROUTES: Route[] = ['home', 'pipeline', 'quests', 'trophies', 'season', 'data'];
 
 const view = document.getElementById('view')!;
 const dialog = document.getElementById('quicklog') as HTMLDialogElement;
@@ -79,14 +82,39 @@ function announce(before: GameState, after: GameState): void {
   } else {
     toast('Logged.');
   }
+
+  // Follow-up toasts for quests, Perfect Days and new trophies.
+  const wasDone = new Set(a.quests.filter((q) => q.completed).map((q) => q.id));
+  const newlyDone = b.quests.filter((q) => q.completed && !wasDone.has(q.id));
+  if (newlyDone.length) {
+    queueToast(`Quest complete: ${newlyDone.map((q) => `${q.title} (+${q.reward} XP)`).join(', ')}`, 'xp');
+  }
+  if (b.perfectDays.size > a.perfectDays.size) {
+    queueToast(`⭐ Perfect Day! +${PERFECT_DAY_XP} XP, and Momentum boosts tomorrow’s results.`, 'xp');
+    reactions.push({ kind: 'burst', start: now + 400 });
+  }
+  const had = new Set(achievements(before).filter((x) => x.unlockedOn).map((x) => x.id));
+  for (const t of achievements(after).filter((x) => x.unlockedOn && !had.has(x.id))) queueToast(`${t.icon} Trophy unlocked: ${t.title}`, 'xp');
 }
 
+// Toasts show one at a time; extra ones wait their turn.
+const toastQueue: { message: string; tone: 'info' | 'xp' | 'error' }[] = [];
 let toastTimer = 0;
 function toast(message: string, tone: 'info' | 'xp' | 'error' = 'info'): void {
+  showToast(message, tone);
+}
+function queueToast(message: string, tone: 'info' | 'xp' | 'error' = 'info'): void {
+  toastQueue.push({ message, tone });
+}
+function showToast(message: string, tone: 'info' | 'xp' | 'error'): void {
   toastEl.textContent = message;
   toastEl.className = `toast show toast-${tone}`;
   clearTimeout(toastTimer);
-  toastTimer = window.setTimeout(() => (toastEl.className = 'toast'), tone === 'error' ? 6000 : 3500);
+  toastTimer = window.setTimeout(() => {
+    const next = toastQueue.shift();
+    if (next) showToast(next.message, next.tone);
+    else toastEl.className = 'toast';
+  }, tone === 'error' ? 6000 : 2800);
 }
 
 function currentRoute(): Route {
@@ -119,6 +147,13 @@ function render(): void {
     case 'pipeline':
       root.innerHTML = renderPipeline(ctx);
       bindPipeline(root, ctx, render);
+      break;
+    case 'quests':
+      root.innerHTML = renderQuests(ctx);
+      bindQuests(root, ctx);
+      break;
+    case 'trophies':
+      root.innerHTML = renderTrophies(ctx);
       break;
     case 'season':
       root.innerHTML = renderSeason(ctx);

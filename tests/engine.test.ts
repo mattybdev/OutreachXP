@@ -15,7 +15,7 @@ function send(state: GameState, over: Partial<NewOutreachInput> = {}) {
   return logNewOutreach(state, { name: 'Dr. Ada', org: 'State University', category: 'academia', personalized: false, date: TODAY, ...over }, NOW, TODAY);
 }
 
-const xpOf = (state: GameState) => computeSeason(state, state.currentSeasonId!).totalXp;
+const xpOf = (state: GameState) => computeSeason(state, state.currentSeasonId!).eventXp;
 
 describe('XP for sends', () => {
   it('pays 10 for a send, +5 personalized, +25 for a new organization', () => {
