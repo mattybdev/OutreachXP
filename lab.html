@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ping Lab · OutreachXP</title>
+    <meta name="description" content="Tuning page for OutreachXP's procedurally generated Ping." />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wdth,wght@75..100,400..800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wordmark">Outreach<span>XP</span></div>
+      <div class="topbar-sub">Ping Lab</div>
+      <a class="topbar-link" href="./">Back to the game</a>
+    </header>
+
+    <main class="lab">
+      <section class="stage panel" aria-label="Ping preview">
+        <canvas id="stage" width="384" height="384" aria-label="Generated Ping"></canvas>
+        <h1 id="form-name">Ping</h1>
+        <p id="form-meta" class="body2"></p>
+        <div id="tier-bars" class="tier-bars"></div>
+      </section>
+
+      <section class="controls panel" aria-label="Genome controls">
+        <h2>Stats</h2>
+        <div id="stat-controls"></div>
+
+        <h2>Life stage</h2>
+        <div id="stage-controls" class="segmented" role="radiogroup" aria-label="Life stage"></div>
+
+        <h2>Mood</h2>
+        <div id="mood-controls" class="segmented" role="radiogroup" aria-label="Mood"></div>
+
+        <div class="row">
+          <label class="field">
+            <span>Form</span>
+            <select id="form-select"></select>
+          </label>
+          <label class="field">
+            <span>Seed</span>
+            <input id="seed-input" type="number" min="0" step="1" />
+          </label>
+          <button id="new-seed" class="btn btn-secondary" type="button">New seed</button>
+        </div>
+
+        <h2>Presets</h2>
+        <div id="presets" class="button-row"></div>
+
+        <h2>Display</h2>
+        <div class="toggles">
+          <label><input id="opt-animate" type="checkbox" checked /> Animate</label>
+          <label><input id="opt-morph" type="checkbox" checked /> Growth morph</label>
+          <label><input id="opt-dither" type="checkbox" /> Dithering</label>
+          <label><input id="opt-room" type="checkbox" checked /> Room background</label>
+        </div>
+
+        <h2>Export</h2>
+        <div class="button-row">
+          <button id="export-png" class="btn btn-primary" type="button">PNG</button>
+          <button id="export-sheet" class="btn btn-primary" type="button">Sprite sheet</button>
+          <button id="copy-genome" class="btn btn-secondary" type="button">Copy genome</button>
+        </div>
+        <p id="toast" class="body2" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="variety panel" aria-label="Variety grid">
+        <div class="variety-head">
+          <h2>Variety</h2>
+          <div class="segmented" id="variety-mode" role="radiogroup" aria-label="Variety mode"></div>
+          <button id="reroll" class="btn btn-secondary" type="button">Reroll</button>
+        </div>
+        <p class="body2">Click a Ping to load its genome.</p>
+        <div id="variety-grid" class="variety-grid"></div>
+      </section>
+    </main>
+
+    <script type="module" src="./src/lab/main.ts"></script>
+  </body>
+</html>

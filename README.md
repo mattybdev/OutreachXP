@@ -2,19 +2,16 @@
 
 A Tamagotchi-style web game that rewards outreach for the Serious Games Showcase & Challenge. The game design lives in [`docs/GAME_DESIGN_DOCUMENT.md`](docs/GAME_DESIGN_DOCUMENT.md).
 
-## Current state: Ping Lab
+## Current state
 
-The first milestone is **Ping**, the procedurally generated creature, plus the **Ping Lab** tuning page (GDD §9.4).
-
-- Ping is drawn entirely in code from a *genome*: hatch seed, life stage, form, mood and four stats (Intellect, Craft, Heart, Authority).
-- Body parts grow continuously with each stat, and each stat tier unlocks generated details (glasses, tool belt, heart aura, badge, sash, shield, …).
-- The same genome always renders the same Ping, so past seasons' Pings can be redrawn exactly.
+- **The game** (`index.html`): set up a season, log outreach in a few taps, track contacts through the pipeline, and earn XP that levels up and grows **Ping**, your procedurally generated outreach companion. Data stays in the browser (IndexedDB), with JSON export/import.
+- **Ping Lab** (`lab.html`): a tuning page for the generator, with sliders for every stat, life stage, mood and seed.
 
 ## Develop
 
 ```bash
 npm install
-npm run dev        # Ping Lab at http://localhost:5173
+npm run dev        # game at http://localhost:5173, Ping Lab at /lab.html
 npm test           # unit tests
 npm run build      # type-check + production build into dist/
 npm run sheet      # writes ping-sheet.png, a contact sheet of sample Pings
@@ -29,6 +26,8 @@ npm run sheet      # writes ping-sheet.png, a contact sheet of sample Pings
 | `src/ping/traits.ts` | Seeded random traits that make each Ping unique |
 | `src/ping/raster.ts` | Pixel buffer, lit shape filling, dithering and auto-outlines |
 | `src/ping/render.ts` | The Ping generator |
+| `src/game/` | Game rules, XP engine, actions and storage (no UI; fully unit-tested) |
+| `src/app/` | The game UI: views, Quick Log, and app shell |
 | `src/lab/` | The Ping Lab page |
 
 ## Deploy

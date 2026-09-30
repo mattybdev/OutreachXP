@@ -700,6 +700,9 @@ QuestState    { id, templateId, period: 'daily'|'weekly'|'monthly'|'seasonal',
 - Procedural Ping generator (§9.4), theme file (§9.6), Ping Lab page, unit tests and GitHub Pages deployment
 
 ### MVP (v0.1: "Ping Hatches")
+
+**Build progress:** part 1 (core loop) ✅ built: season setup, Quick Log with live XP preview, pipeline, the full XP engine (§3), levels and titles, undo, and local save with export/import. Next: part 2 (care meters, streaks, reactions) and part 3 (quests and achievements).
+
 - **Season setup** (name and key dates) and a countdown on the home screen
 - Quick Log (new thread plus stage updates) for all 4 categories
 - XP, levels, 4 stats, care meters, streaks with configurable active days
