@@ -1,10 +1,20 @@
 # OutreachXP: Game Design Document
 
-**Version:** 0.2 (revised after first review)
+**Version:** 0.3 (revised after second review)
 **Date:** 2026-09-30
-**Status:** Awaiting second review.
+**Status:** Awaiting third review.
 
-### Changes since v0.1
+### Changes in v0.3
+| Area | Change |
+|---|---|
+| Government stat | Now **Authority** 🛡️, shown as a sturdier **stance, badge and shield**. Influence and wings were removed. |
+| Logo | The logo is **not used literally** anywhere, because it will change. Pip keeps the brand *colors and fonts* but no logo shapes, and all brand values live in one swappable theme file (§9.6). |
+| Pip's art | **Procedurally generated** from its stats and a hatch seed. There are no hand-drawn sprite sheets, and growth is continuous (§9.4). Added a *Pip Lab* tuning page. |
+| Seasons | Pip **starts over** each season. Each past season is saved in full, and a new **Season Comparison** screen compares years side by side (§6.6). |
+| Accent colors | The four stat accent colors are **approved**. |
+| Hosting | **GitHub Pages** is confirmed, deployed with GitHub Actions (§11.1). |
+
+### Changes in v0.2
 | Area | Change |
 |---|---|
 | Categories | Now **Academia, Industry, Organizations, Government**. Media/Students and Sponsors/Partners were dropped. |
@@ -20,7 +30,7 @@
 ## 1. Overview
 
 ### 1.1 Elevator pitch
-OutreachXP is a browser-based virtual pet game in the spirit of Tamagotchi. You look after **Pip**, a small pixel-art creature that lives off your outreach work for the Serious Games Showcase & Challenge (SGS&C). Every email you send feeds Pip. Every reply, CC and submission commitment helps it grow. The kind of people you contact decides how it grows: reaching academia makes its brain bigger, reaching industry builds its arms, reaching organizations grows its heart, and reaching government spreads its wings. Over a season Pip changes into a creature that shows the shape of your outreach.
+OutreachXP is a browser-based virtual pet game in the spirit of Tamagotchi. You look after **Pip**, a small pixel-art creature that lives off your outreach work for the Serious Games Showcase & Challenge (SGS&C). Every email you send feeds Pip. Every reply, CC and submission commitment helps it grow. The kind of people you contact decides how it grows: reaching academia makes its brain bigger, reaching industry builds its arms, reaching organizations grows its heart, and reaching government gives it a sturdy stance, an official badge and eventually a shield. Over a season Pip changes into a creature that shows the shape of your outreach.
 
 ### 1.2 Purpose
 The game exists to **motivate the outreach subcommittee lead to do more outreach, and to do it consistently**. It does this by:
@@ -82,9 +92,9 @@ Each outreach is tracked as a **Contact Thread**, one card per person reached. A
 | **Academia** | Professors, K-12 teachers, university game/sim programs, researchers, student chapters | **Intellect** 🧠 | Brain |
 | **Industry** | Game studios, sim/training companies, healthcare and defense sim vendors, industry professionals | **Craft** 🛠️ | Arms |
 | **Organizations** | Nonprofits, professional associations, museums, libraries, community groups | **Heart** 💗 | Heart |
-| **Government** | Federal, state and local agencies, military training commands, public health departments, national labs, elected officials' offices | **Influence** 🏛️ | Wings |
+| **Government** | Federal, state and local agencies, military training commands, public health departments, national labs, elected officials' offices | **Authority** 🛡️ | Stance, badge & shield |
 
-**Why Influence and wings for Government:** government contacts rarely produce one submission. Instead they open doors at scale, through agency programs, training commands, policy groups and funding. "Influence" describes that reach. Wings show it visually, and they tie the brand directly into the creature, because the SGS&C logo mark is a winged silhouette. The more government outreach you do, the more Pip looks like the logo.
+**Why Authority for Government:** government contacts bring credibility and official backing, through agency programs, training commands, policy groups and funding. Pip shows this by *standing taller*: its legs and posture get sturdier, and it earns an official badge, then a sash, then a shield.
 
 **Categorization rule of thumb:** pick the category by *what the contact's organization is*, not by its funding.
 - Public universities go under **Academia**.
@@ -130,24 +140,25 @@ The game can't check your inbox in v1, so logging is on the honor system. To kee
 ## 4. Pip: The Creature
 
 ### 4.1 Concept (brand-aligned)
-Pip is a round, cheerful pixel creature designed to feel like a baby version of the SGS&C logo mark:
-- **Body:** a soft black blob (#000000 outline, #232323 body) whose top rises into two small upswept points, echoing the tips of the logo's wings.
-- **Face:** big white eyes with black pupils, and small **brand-orange (#FF5B23)** cheek pixels.
-- **Emblem:** a tiny orange **"sG" belly mark**, like the one on the logo.
+Pip is a round, cheerful pixel creature drawn in the SGS&C brand **colors**, but it borrows **no logo shapes**, so it stays valid after the planned logo change:
+- **Body:** a soft charcoal blob (`#232323` body, `#000000` outline) with small rounded ears.
+- **Face:** big white eyes with black pupils, and small **brand-orange** (`#FF5B23`) cheek pixels.
+- **Mark:** a small orange **envelope-seal** belly mark. It is the game's own symbol, not the showcase logo.
 - **Hatching:** Pip hatches from an **Envelope Egg**, a white pixel envelope with an orange wax seal. The egg cracks when you log your first send.
+- **Uniqueness:** each Pip gets a random **seed** when it hatches. The seed sets small details (ear shape, eye shape, freckle pattern, an idle quirk), so every season's Pip looks a little different even with similar stats.
 
-The player names Pip when it hatches.
+The player names Pip when it hatches. Pip's whole appearance is **generated in code** from its stats, life stage, form and seed (§9.4).
 
 ### 4.2 Stats → body parts (visual growth)
 
-Each stat has **6 visual tiers (0–5)**. The tier is set by the stat's total points, so growth is gradual and visible. Parts are drawn from the brand-derived pixel palette (§9.2), with a small glow in the stat's accent color at higher tiers.
+Each body part **grows continuously** with its stat: the brain gets a little bigger with every point. On top of that, each stat has **6 tiers (0–5)**, and each tier unlocks a new generated accessory or detail. Everything uses the brand-derived pixel palette (§9.2), with a small glow in the stat's accent color at higher tiers.
 
 | Stat | Body Region | Tier 0 → Tier 5 visual progression |
 |---|---|---|
 | **Intellect** 🧠 (Academia) | Head / brain | Plain head → faint brain bump → visible peach-orange brain → oversized brain with glasses → glowing brain with graduation cap → orbiting books and a lightbulb aura |
 | **Craft** 🛠️ (Industry) | Arms / hands | Tiny nubs → small arms → toned arms holding a stylus → muscular arms with a tool belt → mechanical gauntlet arms → arms plus a floating controller and wrench halo |
 | **Heart** 💗 (Organizations) | Chest | No mark → small orange blush → orange heart on the chest → larger beating heart → heart with small orbiting friend-sprites → radiant heart with a warm aura |
-| **Influence** 🏛️ (Government) | Wings / back | Tiny wing nubs → small wings → larger swept wings → wings with orange tips → full sweeping wings shaped like the SGS&C mark → wings plus a laurel and capitol-dome halo |
+| **Authority** 🛡️ (Government) | Legs, stance & badge | Tiny feet → sturdy feet with a steadier stance → taller posture with a lanyard ID badge → orange sash with a star badge → a shield at its side and a small plinth to stand on → a glowing shield with a laurel crest |
 
 **Stat tier thresholds (stat points):** 0 / 20 / 60 / 140 / 280 / 500
 (Target: steady outreach gets a primary category to Tier 3 in about 6 weeks and to Tier 5 near the end of a season.)
@@ -171,12 +182,12 @@ At Teen and Adult, Pip takes a **form** based on its stat distribution. The chec
 
 | Condition | Form | Look |
 |---|---|---|
-| All 4 stats between 15% and 35% of the total | **Polymath Pip** (rare) | Balanced parts, an orange-and-white prismatic outline, and a full wing silhouette that matches the logo |
+| All 4 stats between 15% and 35% of the total | **Polymath Pip** (rare) | Balanced parts, an orange-and-white prismatic outline, and a small crest showing all four stat icons |
 | One stat ≥ 40% of the total | Pure form (below) | |
 | • Intellect | **Scholar Pip** | Big brain, robe, glasses |
 | • Craft | **Forge Pip** | Strong arms, apron, spark effects |
 | • Heart | **Kindred Pip** | Big heart, companion sprites |
-| • Influence | **Envoy Pip** | Broad wings, sash, laurel |
+| • Authority | **Envoy Pip** | Tall stance, sash, shield, laurel |
 | Top two stats each ≥ 30% | **Hybrid form** | Blends both themes |
 | Otherwise | Pure form of the highest stat | |
 
@@ -186,10 +197,10 @@ At Teen and Adult, Pip takes a **form** based on its stat distribution. The chec
 |---|---|
 | Intellect + Craft | **Inventor** |
 | Intellect + Heart | **Mentor** |
-| Intellect + Influence | **Strategist** |
+| Intellect + Authority | **Strategist** |
 | Craft + Heart | **Maker** |
-| Craft + Influence | **Architect** |
-| Heart + Influence | **Diplomat** |
+| Craft + Authority | **Architect** |
+| Heart + Authority | **Diplomat** |
 
 ### 4.5 Care meters (the Tamagotchi layer)
 
@@ -316,8 +327,38 @@ The game is built to be reused for every SGS&C cycle. Everything tied to dates i
 
 **New season rollover (proposed):**
 - The current Pip **graduates** into the **Hall of Pips**, a gallery of past seasons. Each entry has a "Season Yearbook" card showing its final form, stats, funnel and top achievements.
+  - Because Pip is procedurally generated, only its *genome* (seed, stats, form and life stage) needs saving. Any past Pip can be redrawn exactly, at any size.
 - A new Envelope Egg hatches, and **level and stats reset** for the new season.
+- **Nothing from the old season is deleted.** Its events, threads and summary stay stored so seasons can be compared (§6.6).
 - **Carried over:** contacts and organizations (marked as past contacts, eligible for the *Returning Friend* bonus), lifetime achievements, cosmetics, and a lifetime **Lead Rank** that sums up all seasons.
+
+### 6.6 Season Comparison (year over year)
+
+A dedicated screen compares any two or more seasons side by side.
+
+**Headline table** (one column per season):
+
+| Metric | Example: 2026 | Example: 2027 |
+|---|---|---|
+| Emails sent / follow-ups | 212 / 97 | 260 / 141 |
+| Reply rate | 31% | 36% |
+| Commitments / conversions | 18 / 9 | 24 / 13 |
+| New organizations reached | 54 | 71 |
+| Category mix (A / I / O / G) | 45 / 30 / 15 / 10% | 35 / 30 / 20 / 15% |
+| Longest streak, active days | 38 | 52 |
+| Final level and form | L16 Scholar Pip | L18 Mentor Pip |
+
+**Charts:**
+- **Cumulative outreach and results over the season**, with one line per season.
+  - The x-axis can align seasons by **weeks before the submission deadline** (the default) or by **calendar date**, because showcase dates move from year to year.
+- **Funnel comparison** (Sent → Replied → Committed → Converted) for each season.
+- **Category mix** for each season, using the stat accent colors.
+
+**Also on this screen:**
+- **Pip line-up:** each season's final Pip, redrawn from its saved genome and placed side by side.
+- **Personal bests:** "Best reply rate: 2027", "Most conversions: 2027", and so on.
+- **Pace check during a live season:** "You're 12 sends ahead of last year at this point before the deadline."
+- **Export:** each season's summary can be exported as CSV, in addition to the full JSON backup.
 
 ---
 
@@ -387,8 +428,8 @@ Surprises, for example:
    - XP history.
    - An outreach funnel (Sent → Replied → Committed → Converted).
    - A per-category breakdown.
-   - An evolution timeline ("Pip's wings grew on Oct 14!").
-7. **Season:** the season setup and editor (dates and phases), the current phase, and the Hall of Pips.
+   - An evolution timeline ("Pip earned its shield on Oct 14!").
+7. **Season:** the season setup and editor (dates and phases), the current phase, the Hall of Pips and **Season Comparison** (§6.6).
 8. **Settings:** active days, holidays, follow-up window, sound, data export/import and reset.
 
 ### 8.2 Feedback and juice
@@ -404,8 +445,8 @@ Surprises, for example:
 │ ⏳ 42 days to Submission Dl. │
 ├──────────────────────────────┤  ← white panel
 │                              │
-│          (Pip sprite)        │  ← pixel room background
-│        wings • brain • ♥     │
+│      (procedural Pip)        │  ← pixel room background
+│     brain • arms • ♥ • badge │
 │                              │
 │  📨 ████░  😊 ███░░  ⚡ ██░░░ │
 ├──────────────────────────────┤
@@ -432,14 +473,14 @@ The game follows the **SGS&C Style Guide**. There are two layers:
 
 | Token | Hex | Guide role | Use in OutreachXP |
 |---|---|---|---|
-| `--sg-orange` | `#FF5B23` | Logo | Primary accent: H1, XP, hover states, links, Pip's emblem and cheeks |
+| `--sg-orange` | `#FF5B23` | Logo | Primary accent: H1, XP, hover states, links, Pip's cheeks and seal mark |
 | `--sg-black` | `#000000` | Logo | Pip's outline, pixel shadows |
 | `--sg-white` | `#FFFFFF` | Background | Page and panel background |
 | `--sg-charcoal` | `#232323` | Text | Body text, H2, primary buttons, header bar, Pip's body |
 | `--sg-gray` | `#A3A1A8` | Text (secondary) | Secondary labels, disabled states, empty meter tracks |
 | `--sg-orange-light` | `#FF8A63`* | Hyperlink hover | Link hover, lighter pixel highlights |
 
-*The guide shows the hyperlink-hover swatch but gives no hex value, so this is an estimate to confirm. The guide also lists the H1 color as "#FFB23", which looks like a typo for `#FF5B23`, so we'll use the logo orange.
+*The guide shows the hyperlink-hover swatch but gives no hex value, so this is an estimate to confirm. The guide also lists the H1 color as "#FFB23", which looks like a typo for `#FF5B23`, so we'll use the brand orange.
 
 **Typography**
 
@@ -475,39 +516,84 @@ Pip and the world use only these colors, so the art always looks like SGS&C:
 
 Values in **bold** are from the style guide.
 
-**Stat accent colors.** These are used sparingly in the UI (stat bars, icons, the stats chart) and as small glows on Pip's parts at high tiers. They are muted so orange stays the dominant color:
+**Stat accent colors (approved).** These are used sparingly in the UI (stat bars, icons, the stats chart) and as small glows on Pip's parts at high tiers. They are muted so orange stays the dominant color:
 
 | Stat | Accent |
 |---|---|
 | Intellect | `#8E7CC3` lavender |
 | Craft | `#5C7C99` steel blue |
 | Heart | `#E0506E` rose |
-| Influence | `#2FA39A` teal |
+| Authority | `#2FA39A` teal |
 
 ### 9.3 Pixel style
 - **Look:** cute and rounded, with big expressive eyes and a bouncy squash-and-stretch idle. The mostly black body with orange accents keeps it bold and recognizable at small sizes.
-- **Resolution:** sprites are authored at 48×48 max (smaller for early stages) and scaled up with nearest-neighbor filtering (×4–×6).
+- **Resolution:** Pip is generated on a pixel grid of at most 48×48 (smaller for early stages) and scaled up with nearest-neighbor filtering (×4–×6).
 - **Room:** a light gray (`#F2F2F2`) pixel room with a subtle texture, like the guide's page background, and a charcoal floor line. Cosmetic backgrounds follow the same palette.
 
-### 9.4 Modular sprite system
-Pip is drawn as **stacked layers**, so each body part grows independently:
+### 9.4 Procedural generation of Pip
+
+Pip is **not drawn by hand**. Its image is generated in code, in the browser, from a small description called the **genome**. The same genome always produces the same Pip.
+
+**Genome (inputs)**
+```ts
+PipGenome {
+  seed,                       // set at hatch: controls small unique details
+  lifeStage,                  // egg, baby, kid, teen, adult, legend
+  form,                       // Scholar, Forge, ..., Polymath
+  stats: { intellect, craft, heart, authority },  // raw points: drive continuous growth
+  mood,                       // from care meters: posture and expression
+  cosmetics[]                 // hats, backgrounds, palette variant
+}
+```
+
+**Stats → shape parameters.** Each stat maps to parameters through an easing curve with a maximum, so early points show quickly and growth never becomes grotesque:
+
+| Stat | Continuous parameters | Tier-unlocked details (generated from shapes) |
+|---|---|---|
+| Intellect | Brain dome radius, head height ratio, brain fold count | Glasses (T3), cap (T4), orbiting books and bulb (T5) |
+| Craft | Arm length, arm thickness, hand size | Stylus (T2), tool belt (T3), gauntlet plating (T4), controller-and-wrench halo (T5) |
+| Heart | Heart size, pulse strength, blush intensity | Beating animation (T3), orbiting friend-sprites (T4), warm aura (T5) |
+| Authority | Leg length, stance width, overall height, posture | Lanyard badge (T2), sash and star (T3), shield and plinth (T4), shield glow and laurel (T5) |
+
+**Forms** apply a preset on top of the stats, such as Scholar's taller head ratio or Envoy's straighter posture, plus the form's signature accessory.
+
+**Rendering pipeline (per frame)**
+1. **Build shapes:** body, head, brain, arms, heart, legs and accessories are made from simple primitives (ellipses, rounded rectangles, curves and blobs), positioned from anchor points that move as parts grow.
+2. **Rasterize** each shape onto the low-resolution pixel grid.
+3. **Shade:** each shape is lit from the upper left and filled with 3–4 steps from its palette ramp (§9.2). Optional ordered dithering gives a retro texture.
+4. **Composite** the layers in order (below).
+5. **Outline:** add an automatic 1px dark outline around the silhouette and between major parts, which is the key to the clean pixel-art look.
+6. **Add details:** face, cheeks, seal mark, and seed-based freckles and quirks.
+7. **Scale up** to the screen with nearest-neighbor filtering (`image-rendering: pixelated`).
 
 ```
 Layer order (back → front):
-  aura/effects → wings (Influence tier) → body base (life stage + form)
-  → arms (Craft tier) → chest heart (Heart tier) → head/brain (Intellect tier)
-  → face + sG emblem → hats/cosmetics
+  aura/effects → shield (Authority) → legs & stance (Authority) → body
+  → arms (Craft) → chest heart (Heart) → head/brain (Intellect)
+  → face + seal mark + badge/sash → hats/cosmetics
 ```
 
-- Each body base defines anchor points, so parts attach correctly at every life stage.
-- **Asset estimate:** 4 stats × 6 tiers × 3 size classes (small/medium/large) ≈ 72 part sprites, plus 6 body bases, 11 form overlays and the animations.
+**Animation**
+- Idle bob, squash and stretch, breathing and heart pulse are transforms applied to the shape parameters *before* rasterizing, so motion always snaps cleanly to the pixel grid.
+- **Growth morphing:** when stats change, the parameters tween from old to new values over about 1 second. You literally watch the brain grow.
+- Frames are cached, and only regenerated when the genome or animation frame changes.
+
+**Rules that keep Pip readable and cute**
+- The head always stays at least 45% of total height (a baby-like proportion).
+- Parts never cover the eyes.
+- The silhouette must still read at 1× scale (48 px).
+- Each part has a size cap so balanced and lopsided Pips both look good.
+
+**Pip Lab (developer and tuning page).** A hidden page with sliders for every stat, life stage, form, seed and mood. It shows a grid of generated Pips, and is used to tune the look and review changes. It can also export a PNG or a sprite sheet for sharing.
+
+**Testing:** generator output is deterministic, so automated snapshot tests can catch accidental visual changes.
 
 ### 9.5 Animations (v1 minimum)
-Idle bob, blink, happy bounce, sad droop, sleep, eat (envelope), paper-airplane throw, catch, dance, wing flap, evolution sparkle.
+Idle bob, blink, happy bounce, sad droop, sleep, eat (envelope), paper-airplane throw, catch, dance, shield raise and badge shine, evolution sparkle. All animations are procedural (§9.4).
 
-### 9.6 Logo usage
-- The official SGS&C logo appears **only** on the splash and about screens, unmodified. This needs approval (§14).
-- Pip is *inspired by* the logo mark, not a copy of it.
+### 9.6 Logo and rebranding
+- The SGS&C logo is **not used** in the game for now, because it is planned to change. The title screen uses an **"OutreachXP" wordmark** set in the brand fonts, with the envelope-seal mark.
+- **All brand values live in one theme file:** colors, fonts, the pixel palette ramps and the optional logo image slot. A future rebrand means editing that one file, and Pip's colors update automatically because it is generated from the palette.
 
 ### 9.7 Audio (optional, v0.3)
 Chiptune sound effects for logging, level-up and evolution. Sound is off by default.
@@ -553,20 +639,23 @@ A typical showcase season (4–6 months) should end with an Adult Pip.
 
 ### 11.1 Stack (proposed)
 - **Frontend:** TypeScript + Vite. Either vanilla TypeScript with a small state store, or a lightweight framework (Preact or Svelte).
-- **Rendering:** HTML Canvas for Pip (layered sprite compositing with nearest-neighbor scaling) and DOM/CSS for the UI.
-- **Styling:** the brand tokens from §9.1 as CSS custom properties.
+- **Rendering:** HTML Canvas for Pip, generated procedurally (§9.4) and scaled with nearest-neighbor filtering, with DOM/CSS for the UI.
+- **Styling:** the brand tokens from §9.1 in a single theme file, exposed as CSS custom properties (§9.6).
 - **Storage:** IndexedDB for threads, events and game state, with JSON **export/import** for backups and moving between devices.
-- **Hosting:** a static site (e.g. GitHub Pages), with no backend.
+- **Hosting:** **GitHub Pages** (confirmed), with no backend. A GitHub Actions workflow builds and deploys the site on every push to the main branch.
 - **PWA:** installable and usable offline, with optional browser notifications for follow-up reminders (later).
 
 ### 11.2 Core data model (sketch)
 ```ts
 type Category = 'academia' | 'industry' | 'organizations' | 'government';
-type Stat     = 'intellect' | 'craft' | 'heart' | 'influence';
+type Stat     = 'intellect' | 'craft' | 'heart' | 'authority';
 
 Season        { id, name, keyDates: {kickoff?, submissionsOpen?, submissionDeadline?,
                 judgingStart?, judgingEnd?, eventStart?, eventEnd?, wrapUpEnd?},
-                phases: Phase[], archivedAt?, finalPipSnapshot? }
+                phases: Phase[], archivedAt?, finalPip?: PipGenome, summary?: SeasonSummary }
+SeasonSummary { sends, followUps, replies, engaged, ccs, referrals, commitments,
+                conversions, newOrgs, byCategory: Record<Category, Funnel>,
+                weeklySeries[], longestStreak, finalLevel, finalForm }
 Phase         { id, name, type: PhaseType, start, end }
 Contact       { id, name, org, email?, category, createdAt, referredBy?: ContactId,
                 pastSeasonOutcome?: 'committed' | 'converted' }
@@ -597,12 +686,13 @@ QuestState    { id, templateId, period: 'daily'|'weekly'|'monthly'|'seasonal',
 - **Season setup** (name and key dates) and a countdown on the home screen
 - Quick Log (new thread plus stage updates) for all 4 categories
 - XP, levels, 4 stats, care meters, streaks with configurable active days
-- Pip in brand style: Egg, Baby and Kid stages, with stat parts at tiers 0–3
+- **Procedural Pip generator** with continuous growth for all 4 stats, Egg, Baby and Kid stages, tier details up to T3, and the Pip Lab tuning page
 - Daily and weekly quests, Perfect Day and Momentum
 - About 15 achievements
 - Pipeline list view
 - Brand UI (tokens, fonts, buttons)
 - Local storage plus JSON export/import
+- GitHub Pages deployment through GitHub Actions
 
 ### v0.2: "Pip Evolves"
 - Teen, Adult and Legend stages; the 4 pure forms plus Polymath
@@ -612,7 +702,7 @@ QuestState    { id, templateId, period: 'daily'|'weekly'|'monthly'|'seasonal',
 
 ### v0.3: "Showcase Season"
 - Full phase editor and seasonal quests
-- New-season rollover, the Hall of Pips and Season Yearbook cards
+- New-season rollover, the Hall of Pips, Season Yearbook cards and **Season Comparison**
 - The 6 hybrid forms
 - Sound, PWA install and notifications
 
@@ -631,16 +721,13 @@ Since the goal is to change behavior, the Journal tracks these for the lead's ow
 - Reply → commitment → conversion funnel rates, overall and by category
 - Category balance over time
 - Active days per week, and streak length
-- Season-over-season comparison (from the Hall of Pips)
+- Season-over-season comparison (§6.6)
 
 ---
 
 ## 14. Open Questions for Review
 
-1. **Government stat:** are you happy with **Influence** and wings? The alternative is **Authority**, shown as a shield and badge with a sturdier stance.
-2. **Season rollover:** should Pip **graduate and reset** each season (recommended; the old Pip goes to the Hall of Pips), or keep growing across years?
-3. **Logo use:** can the app show the official SGS&C logo on its splash screen, and is a Pip with an "sG" belly emblem and logo-shaped wings acceptable to whoever owns the brand?
-4. **Stat accent colors:** are the four muted accent colors (§9.2) acceptable? They are outside the style guide. The alternative is shades of orange and gray only, which is harder to tell apart on charts.
-5. **Hyperlink hover color:** do you have the exact hex value for the guide's light-orange hover swatch?
-6. **Art sourcing:** should I produce the pixel art in code as a first pass (placeholder sprites), or will an artist draw the final sprites?
-7. **Tech and hosting:** is GitHub Pages fine, or does it need to run somewhere specific?
+1. **Hyperlink hover color:** do you have the exact hex value for the guide's light-orange hover swatch? Until then we use `#FF8A63`.
+2. **Authority visuals:** does the progression from feet, to badge, to sash, to shield read as "government" to you? An alternative is a capitol-dome hat or column motifs.
+3. **Seed uniqueness:** should each season's Pip get random unique details (the current plan), or should every Pip start identical so seasons compare purely on stats?
+4. **Next step:** if this version looks good, the proposal is to start the MVP (§12) by building the **procedural Pip generator and the Pip Lab first**. That lets you see and tune the character before the rest of the game is built.
