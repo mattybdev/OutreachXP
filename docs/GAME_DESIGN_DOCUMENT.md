@@ -1,8 +1,11 @@
 # OutreachXP: Game Design Document
 
-**Version:** 0.3.5
+**Version:** 0.3.6
 **Date:** 2026-09-30
 **Status:** Approved for build. Implementation has started with the Ping generator and Ping Lab (§12).
+
+### Changes in v0.3.6
+- **Install as an app (PWA)** ✅ built (§11.4): installable on phones and computers, works offline, offers a reload when a new version is ready, and shows the number of follow-ups due on the app icon. Open Sans is now bundled with the app instead of loaded from Google Fonts.
 
 ### Changes in v0.3.5
 - **Showcase phases dropped** (§6.5 phases and seasonal quests are no longer planned).
@@ -61,7 +64,7 @@ The game exists to **motivate the outreach subcommittee lead to do more outreach
 - **The outreach subcommittee lead only** (single player) for now.
 
 ### 1.4 Platform
-- Web app running in a desktop or mobile browser. It is responsive, and designed so it can be installed as an app (PWA) later.
+- Web app running in a desktop or mobile browser. It is responsive and can be installed as an app (PWA, §11.4).
 - Works offline first, and data stays on the device (see §11).
 - Reusable every year: the showcase dates are set in-game (§6.5).
 
@@ -683,7 +686,7 @@ A typical showcase season (4–6 months) should end with an Adult Ping.
 - **Styling:** the brand tokens from §9.1 in a single theme file, exposed as CSS custom properties (§9.6).
 - **Storage:** IndexedDB for threads, events and game state, with JSON **export/import** for backups and moving between devices.
 - **Hosting:** **GitHub Pages** (confirmed), with no backend. A GitHub Actions workflow builds and deploys the site on every push to the main branch.
-- **PWA:** installable and usable offline, with optional browser notifications for follow-up reminders (later).
+- **PWA:** installable and usable offline (§11.4).
 
 ### 11.2 Core data model (sketch)
 ```ts
@@ -717,6 +720,16 @@ QuestState    { id, templateId, period: 'daily'|'weekly'|'monthly'|'seasonal',
 ### 11.3 Privacy
 - All contact data stays in the user's browser. Nothing is sent to a server.
 - Email addresses are optional; name plus organization is enough.
+
+### 11.4 Installable app (PWA) ✅ built
+- **Manifest and icons:** `manifest.webmanifest` opens the app in its own window (`standalone`) with the brand colours. The icons in `public/icons` are drawn from Ping's pixel art on SGS&C orange by `scripts/icons.test.ts` (no logo), including an Android "maskable" version with Ping inside the safe zone and a 180 px Apple touch icon.
+- **Offline:** a service worker, generated at build time by `scripts/pwa.ts` from `src/pwa/sw.template.js`, saves every built page, asset and public file. Pages and files are served from that saved copy, so the app opens with no connection. Game data is not in the service worker; it stays in IndexedDB.
+- **Updates:** each build gets a new cache version. A new version downloads in the background and waits; the app shows "A new version of OutreachXP is ready" with a **Reload** button. Installed apps look for updates when brought back to the front (at most every 30 minutes).
+- **Installing:** Chrome and Edge (desktop and Android) get an **Install app** button, using the browser's own install dialog. iPhone and iPad get the Share → Add to Home Screen steps. Other browsers get a pointer to their menu. A one-time nudge appears on Home (dismissible); the full instructions are on the Data tab.
+- **Data:** the app asks the browser to keep its data even under storage pressure, and the Data tab says whether it agreed. On iPhone and iPad the installed app has its own storage, separate from Safari's, so moving data there is done with Export and Import.
+- **Icon badge:** the installed app's icon shows how many follow-ups are due (Badging API: Chrome and Edge on desktop, Safari on iOS 16.4+ and macOS). It updates whenever the app is open.
+- **Not included (needs a server):** scheduled push reminders. A small push service (for example a Cloudflare Worker) could add them later.
+- **Fonts:** Open Sans (Latin and Latin Extended, width 75–100% for the condensed style) is bundled from `@fontsource-variable/open-sans`, so text looks right offline.
 
 ---
 
@@ -757,7 +770,7 @@ QuestState    { id, templateId, period: 'daily'|'weekly'|'monthly'|'seasonal',
 - Full phase editor and seasonal quests
 - New-season rollover, the Hall of Pings, Season Yearbook cards and **Season Comparison**
 - The 6 hybrid forms
-- Sound, PWA install and notifications
+- Sound and notifications (PWA install ✅ built, §11.4)
 
 ### Future / stretch
 - **Email integration** (a Gmail/Outlook add-on or API) to detect sends and replies automatically

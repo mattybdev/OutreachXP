@@ -362,3 +362,22 @@ details.group[open] summary h2::before { content: '▾'; }
 .compare-chart .hit { fill: transparent; outline: none; }
 .compare-chart .hit:hover, .compare-chart .hit:focus { fill: rgba(35, 35, 35, 0.05); }
 .comparison .data-table td { text-align: right; }
+
+/* Installable app: install nudge, update bar and safe areas for notched phones. */
+.install-hint p { margin: 0 0 10px; }
+.install-steps { margin: 8px 0; padding-left: 22px; }
+.install-steps li + li { margin-top: 4px; }
+.update-bar {
+  position: fixed; left: 50%; top: calc(12px + env(safe-area-inset-top)); transform: translateX(-50%); z-index: 20;
+  display: flex; align-items: center; gap: 12px; max-width: calc(100vw - 32px);
+  background: var(--sg-charcoal); color: var(--sg-white); padding: 10px 12px 10px 16px; box-shadow: var(--shadow); font-weight: 600;
+}
+.update-bar[hidden] { display: none; }
+.update-bar .btn { background: var(--sg-orange); border-color: var(--sg-orange); color: var(--sg-white); }
+.topbar { padding-top: calc(12px + env(safe-area-inset-top)); padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+.view { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+@media (max-width: 820px) {
+  body.app { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+  .tabs { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+  .toast { bottom: calc(88px + env(safe-area-inset-bottom)); }
+}

@@ -67,11 +67,6 @@ export async function saveState(state: GameState): Promise<void> {
   }
 }
 
-/** Ask the browser not to evict our data under storage pressure (best effort). */
-export function requestPersistence(): void {
-  navigator.storage?.persist?.().catch(() => undefined);
-}
-
 // ─── Validation ────────────────────────────────────────────────────────────
 
 const EVENT_TYPES: EventType[] = ['sent', 'followup', 'replied', 'engaged', 'cc', 'referred', 'committed', 'converted', 'closed'];

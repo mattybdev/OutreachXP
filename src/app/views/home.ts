@@ -10,6 +10,7 @@ import { moodFor, type Meters } from '../../game/care';
 import { currentQuests, questCard } from './quests';
 import { weekStartOf } from '../../game/care';
 import { careNow, categoryChip, currentSeason, esc, plural, relativeDay, seasonSummary, threadViews, upcomingDates, type AppContext } from '../context';
+import { dismissInstallHint, installHintDismissed, installMode, promptInstall } from '../pwa';
 
 const STAT_CATEGORY: Record<string, Category> = { intellect: 'academia', craft: 'industry', heart: 'organizations', authority: 'government' };
 const STAT_NAME: Record<string, string> = { intellect: 'Intellect', craft: 'Craft', heart: 'Heart', authority: 'Authority' };
@@ -102,11 +103,28 @@ export function renderHome(ctx: AppContext): string {
     </section>
     <div class="home-side">
       <button class="btn btn-primary btn-big" type="button" data-action="log">+ Log outreach</button>
+      ${renderInstallHint()}
       ${renderCountdown(ctx)}
       ${renderToday(ctx, today)}
       ${renderActivity(ctx)}
     </div>
   </div>`;
+}
+
+/** A one-time nudge to install the app, where the browser supports it. */
+function renderInstallHint(): string {
+  const mode = installMode();
+  if ((mode !== 'prompt' && mode !== 'ios') || installHintDismissed()) return '';
+  const text = mode === 'prompt'
+    ? 'Install OutreachXP as an app: open it from your home screen or dock, and use it offline.'
+    : 'Add OutreachXP to your home screen: tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>. <a href="#data">More on the Data tab</a>.';
+  return `<section class="panel install-hint">
+    <p>📲 ${text}</p>
+    <div class="button-row">
+      ${mode === 'prompt' ? '<button class="btn btn-primary btn-small" type="button" data-action="install">Install app</button>' : ''}
+      <button class="btn btn-secondary btn-small" type="button" data-action="dismiss-install">${mode === 'prompt' ? 'Not now' : 'Got it'}</button>
+    </div>
+  </section>`;
 }
 
 function renderCountdown(ctx: AppContext): string {
@@ -194,6 +212,11 @@ export function bindHome(root: HTMLElement, ctx: AppContext): void {
     if (!target) return;
     const action = target.dataset.action;
     if (action === 'log') ctx.openQuickLog({ mode: 'new' });
+    if (action === 'install') promptInstall().then(() => ctx.navigate('home'));
+    if (action === 'dismiss-install') {
+      dismissInstallHint();
+      target.closest('.install-hint')?.remove();
+    }
     if (action === 'followup') ctx.openQuickLog({ mode: 'update', threadId: target.dataset.thread });
     if (action === 'undo' && target.dataset.batch) {
       try {

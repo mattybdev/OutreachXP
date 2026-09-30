@@ -4,6 +4,7 @@ import { formatDate, isValidISODate, todayISO } from '../../game/dates';
 import { parseState } from '../../game/storage';
 import { emptyState } from '../../game/types';
 import { plural, type AppContext } from '../context';
+import { installMode, promptInstall, storagePersisted } from '../pwa';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -19,6 +20,7 @@ export function renderData(ctx: AppContext): string {
         <label class="btn btn-secondary file-btn">Import backup<input type="file" accept="application/json,.json" data-action="import" /></label>
       </div>
     </section>
+    ${renderInstall()}
     <section class="panel">
       <h2>Follow-up reminders</h2>
       <form id="settings-form" class="grid-2" novalidate>
@@ -54,9 +56,36 @@ export function renderData(ctx: AppContext): string {
   </div>`;
 }
 
+function renderInstall(): string {
+  const mode = installMode();
+  const persisted = storagePersisted();
+  const body = {
+    installed: `<p>You’re using the installed app. It works offline, and its icon shows how many follow-ups are due.</p>`,
+    prompt: `<p>Install OutreachXP to open it from your home screen, dock or app list and use it offline. Your data stays the same.</p>
+      <div class="button-row"><button class="btn btn-primary" type="button" data-action="install">Install app</button></div>`,
+    ios: `<ol class="install-steps">
+        <li>Tap <strong>Share</strong> (the square with an arrow) in Safari’s toolbar.</li>
+        <li>Choose <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</li>
+      </ol>
+      <p class="body2">On iPhone and iPad the installed app keeps its own copy of your data, separate from Safari’s. Export a backup here first, then import it in the app.</p>`,
+    manual: `<p>Look for <strong>Install</strong> or <strong>Add to Home Screen</strong> in your browser’s menu or address bar. Chrome and Edge can install it on computers and Android, and Safari can on iPhone, iPad and Mac (<strong>File → Add to Dock</strong>).</p>`,
+  }[mode];
+  const storage = persisted === true
+    ? '<p class="body2">✓ This browser has agreed to keep your data even if the device runs low on space.</p>'
+    : persisted === false
+      ? '<p class="body2">This browser may clear saved data if the device runs low on space. Installing the app usually prevents that, but backups are the safest bet.</p>'
+      : '';
+  return `<section class="panel">
+      <h2>Install the app</h2>
+      ${body}
+      ${storage}
+    </section>`;
+}
+
 export function bindData(root: HTMLElement, ctx: AppContext): void {
   root.addEventListener('click', (e) => {
     const action = (e.target as HTMLElement).closest<HTMLElement>('[data-action]')?.dataset.action;
+    if (action === 'install') promptInstall().then(() => ctx.navigate('data'));
     if (action === 'export') {
       const blob = new Blob([JSON.stringify(ctx.state, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');

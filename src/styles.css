@@ -1,4 +1,5 @@
 /* Brand tokens mirror src/theme.ts (GDD §9.1). */
+@import './fonts.css';
 :root {
   --sg-orange: #ff5b23;
   --sg-orange-light: #ff8a63;

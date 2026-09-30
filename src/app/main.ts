@@ -4,11 +4,12 @@ import { streakInfo, streakMultiplier } from '../game/care';
 import { todayISO } from '../game/dates';
 import { computeSeason } from '../game/engine';
 import { lifeStageForLevel, titleForLevel } from '../game/rules';
-import { loadState, requestPersistence, saveState } from '../game/storage';
+import { loadState, saveState } from '../game/storage';
 import type { GameState } from '../game/types';
 import { renderBackground } from '../ping/backgrounds';
 import { drawFrame, PING_CANVAS, renderPing, type PingFrame } from '../ping/render';
-import { careNow, currentSeason, esc, seasonSummary, type AppContext, type QuickLogOptions } from './context';
+import { careNow, currentSeason, esc, seasonSummary, threadViews, type AppContext, type QuickLogOptions } from './context';
+import { applyUpdate, initPwa, setBadge } from './pwa';
 import { openQuickLog } from './quicklog';
 import { drawReactions, isActive, pingOffset, reactionFor, type Reaction } from './reactions';
 import { bindData, renderData } from './views/data';
@@ -175,6 +176,15 @@ function render(): void {
       break;
   }
   view.replaceChildren(root);
+  // On the installed app's icon, show how many follow-ups are due.
+  setBadge(season ? threadViews(state).filter((t) => t.due).length : 0);
+}
+
+/** A new version finished downloading: offer to reload into it. */
+function showUpdateBar(): void {
+  const bar = document.getElementById('update-bar')!;
+  bar.hidden = false;
+  bar.querySelector('button')!.onclick = () => applyUpdate();
 }
 
 // ─── Ping animation on the home screen ─────────────────────────────────────
@@ -221,7 +231,13 @@ function checkIn(): void {
 
 async function boot(): Promise<void> {
   state = await loadState();
-  requestPersistence();
+  initPwa({
+    onUpdateReady: showUpdateBar,
+    onInstallChange(installed) {
+      if (installed) toast('OutreachXP is installed. Open it from your home screen or app list.', 'xp');
+      if (!dialog.open && (currentRoute() === 'home' || currentRoute() === 'data')) render();
+    },
+  });
   // Charts are sized to their container, so redraw the Stats view when the window resizes.
   let resizeTimer = 0;
   window.addEventListener('resize', () => {
