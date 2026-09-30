@@ -394,7 +394,7 @@ export const BACKGROUNDS: BackgroundDef[] = [
     },
   },
   {
-    id: 'starry-night', name: 'Starry Night', rarity: 'rare', achievement: 'perfect-day', animated: true,
+    id: 'starry-night', name: 'Starry Night', rarity: 'rare', achievement: 'perfect-week', animated: true,
     draw(c, _t, frame) {
       vgrad(c, 0, W, 0, G, ['#0F1530', '#28336A']);
       stars(c, 60, 90, frame, 3);

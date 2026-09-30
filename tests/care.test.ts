@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createSeason, logNewOutreach } from '../src/game/actions';
-import { addDays, isActiveDay, moodFor, simulateCare, streakInfo, streakMultiplier } from '../src/game/care';
+import { addDays, isActiveDay, isWeekOff, moodFor, simulateCare, streakInfo, streakMultiplier, weekStartOf } from '../src/game/care';
 import { computeSeason } from '../src/game/engine';
 import { emptyState, type GameState } from '../src/game/types';
 
@@ -24,61 +24,69 @@ describe('calendar', () => {
     expect(isActiveDay('2026-10-10', s.settings)).toBe(false); // Saturday
     expect(isActiveDay(MON, { ...s.settings, holidays: [MON] })).toBe(false);
   });
+
+  it('starts weeks on Monday', () => {
+    expect(weekStartOf('2026-10-11')).toBe(MON); // Sunday
+    expect(weekStartOf(MON)).toBe(MON);
+  });
 });
 
-describe('streaks', () => {
-  it('skips weekends without breaking the streak', () => {
+describe('weekly streaks', () => {
+  it('counts consecutive weeks with any outreach', () => {
     let s = seasonOn(MON);
-    for (const d of ['2026-10-05', '2026-10-06', '2026-10-07', '2026-10-08', '2026-10-09', '2026-10-12']) s = sendOn(s, d);
-    expect(streakInfo(s, s.currentSeasonId!, '2026-10-12').current).toBe(6);
-    // Saturday: nothing needed, streak still stands.
-    expect(streakInfo(s, s.currentSeasonId!, '2026-10-10')).toMatchObject({ current: 5, atRisk: false });
+    for (const d of [MON, '2026-10-14', '2026-10-23']) s = sendOn(s, d); // Mon, Wed next week, Fri the week after
+    expect(streakInfo(s, s.currentSeasonId!, '2026-10-23').current).toBe(3);
   });
 
-  it('is at risk on an active day with no outreach yet, and broken after a missed active day', () => {
+  it('is at risk until something is logged this week, and breaks after a missed week', () => {
     let s = seasonOn(MON);
     s = sendOn(s, MON);
-    expect(streakInfo(s, s.currentSeasonId!, '2026-10-06')).toMatchObject({ current: 1, atRisk: true });
-    expect(streakInfo(s, s.currentSeasonId!, '2026-10-07').current).toBe(0);
+    expect(streakInfo(s, s.currentSeasonId!, '2026-10-13')).toMatchObject({ current: 1, atRisk: true });
+    expect(streakInfo(s, s.currentSeasonId!, '2026-10-20').current).toBe(0);
   });
 
-  it('adds 5% XP per 7-day block, up to 25%', () => {
-    expect([0, 6, 7, 14, 35, 70].map(streakMultiplier)).toEqual([1, 1, 1.05, 1.1, 1.25, 1.25]);
+  it('skips weeks fully marked as time off', () => {
     let s = seasonOn(MON);
-    let d = MON;
-    for (let i = 0; i < 7; i++) {
-      s = sendOn(s, d);
-      d = addDays(d, 1);
-      while (!isActiveDay(d, s.settings)) d = addDays(d, 1);
-    }
+    s = sendOn(s, MON);
+    const offWeek = ['2026-10-12', '2026-10-13', '2026-10-14', '2026-10-15', '2026-10-16'];
+    s = { ...s, settings: { ...s.settings, holidays: offWeek } };
+    expect(isWeekOff('2026-10-12', s.settings)).toBe(true);
+    s = sendOn(s, '2026-10-19');
+    expect(streakInfo(s, s.currentSeasonId!, '2026-10-19').current).toBe(2);
+  });
+
+  it('adds 5% XP per 4 weeks, up to 25%', () => {
+    expect([0, 3, 4, 8, 20, 40].map(streakMultiplier)).toEqual([1, 1, 1.05, 1.1, 1.25, 1.25]);
+    let s = seasonOn(MON);
+    for (let w = 0; w < 4; w++) s = sendOn(s, addDays(MON, w * 7 + 2));
     const last = computeSeason(s, s.currentSeasonId!).entries.at(-1)!;
     expect(last.parts.map((p) => p.label)).toContain('Streak ×1.05');
   });
 });
 
-describe('care meters', () => {
-  it('drain on active days and refill from outreach and check-ins', () => {
+describe('care meters (weekly pace)', () => {
+  it('drain gently on active days and refill from outreach and check-ins', () => {
     let s = seasonOn(MON);
     const id = s.currentSeasonId!;
     expect(simulateCare(s, id, MON).meters).toEqual({ fullness: 70, joy: 70, energy: 70 });
-    expect(simulateCare(s, id, '2026-10-06').meters).toEqual({ fullness: 40, joy: 55, energy: 50 });
+    expect(simulateCare(s, id, '2026-10-06').meters).toEqual({ fullness: 64, joy: 66, energy: 65 });
     // Weekends pause the drain.
     expect(simulateCare(s, id, '2026-10-11').meters).toEqual(simulateCare(s, id, '2026-10-09').meters);
     s = sendOn(s, '2026-10-06');
     s = { ...s, checkins: ['2026-10-06'] };
-    expect(simulateCare(s, id, '2026-10-06').meters).toEqual({ fullness: 52, joy: 55, energy: 80 });
+    expect(simulateCare(s, id, '2026-10-06').meters).toEqual({ fullness: 76, joy: 66, energy: 95 });
   });
 
-  it('hibernates after 7 active days at zero and pays a welcome-back bonus on the next send', () => {
+  it('stays awake through two quiet weeks but hibernates after about a month', () => {
     const s = seasonOn(MON);
     const id = s.currentSeasonId!;
-    const late = '2026-11-02'; // four weeks of silence
+    expect(simulateCare(s, id, addDays(MON, 14)).hibernating).toBe(false);
+    const late = addDays(MON, 42);
     expect(simulateCare(s, id, late).hibernating).toBe(true);
     // Checking in restores energy but doesn't wake Ping; only outreach does.
     expect(simulateCare({ ...s, checkins: [late] }, id, late).hibernating).toBe(true);
     const woken = sendOn(s, late);
-    const summary = computeSeason(woken, id);
-    expect(summary.entries[0].parts.map((p) => p.label)).toContain('Welcome back');
+    expect(computeSeason(woken, id).entries[0].parts.map((p) => p.label)).toContain('Welcome back');
     expect(simulateCare(woken, id, late).hibernating).toBe(false);
   });
 

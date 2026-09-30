@@ -30,7 +30,7 @@ export function renderData(ctx: AppContext): string {
     </section>
     <section class="panel">
       <h2>Active days and holidays</h2>
-      <p class="body2">Streaks only count your active days, and your Ping’s meters only drain on them. Days off never break a streak.</p>
+      <p class="body2">Your Ping’s meters only drain on active days. Streaks count weeks with outreach; a week where every active day is marked as time off never breaks a streak.</p>
       <div class="weekdays" role="group" aria-label="Active days">${WEEKDAYS.map((d, i) => `<label class="check">
           <input type="checkbox" data-weekday="${i}" ${settings.activeDays.includes(i) ? 'checked' : ''} /> <span>${d}</span></label>`).join('')}</div>
       <h3>Holidays and time off</h3>

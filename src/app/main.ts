@@ -17,7 +17,7 @@ import { bindPipeline, renderPipeline } from './views/pipeline';
 import { bindQuests, renderQuests } from './views/quests';
 import { bindSeason, renderSeason } from './views/season';
 import { achievements, backgroundFor, bindAchievements, equippedBackground, renderAchievements } from './views/achievements';
-import { PERFECT_DAY_XP } from '../game/quests';
+import { PERFECT_WEEK_XP } from '../game/quests';
 
 type Route = 'home' | 'pipeline' | 'quests' | 'achievements' | 'season' | 'data';
 const ROUTES: Route[] = ['home', 'pipeline', 'quests', 'achievements', 'season', 'data'];
@@ -72,8 +72,8 @@ function announce(before: GameState, after: GameState): void {
     toast(`+${gained} XP · The egg hatched! Say hello to ${name}.`, 'xp');
   } else if (labels.has('Welcome back')) {
     toast(`+${gained} XP · ${name} woke up! Welcome back.`, 'xp');
-  } else if (streakAfter > streakBefore && streakAfter % 7 === 0) {
-    toast(`+${gained} XP · ${streakAfter}-day streak! XP bonus is now +${Math.round((streakMultiplier(streakAfter) - 1) * 100)}%.`, 'xp');
+  } else if (streakAfter > streakBefore && streakAfter % 4 === 0) {
+    toast(`+${gained} XP · ${streakAfter}-week streak! XP bonus is now +${Math.round((streakMultiplier(streakAfter) - 1) * 100)}%.`, 'xp');
   } else if (leveled) {
     const grew = lifeStageForLevel(b.level.level) !== lifeStageForLevel(a.level.level);
     toast(`+${gained} XP · Level ${b.level.level}: ${titleForLevel(b.level.level)}!${grew ? ` ${name} grew up!` : ''}`, 'xp');
@@ -83,14 +83,14 @@ function announce(before: GameState, after: GameState): void {
     toast('Logged.');
   }
 
-  // Follow-up toasts for quests, Perfect Days and new achievements.
+  // Follow-up toasts for quests, Perfect Weeks and new achievements.
   const wasDone = new Set(a.quests.filter((q) => q.completed).map((q) => q.id));
   const newlyDone = b.quests.filter((q) => q.completed && !wasDone.has(q.id));
   if (newlyDone.length) {
     queueToast(`Quest complete: ${newlyDone.map((q) => `${q.title} (+${q.reward} XP)`).join(', ')}`, 'xp');
   }
-  if (b.perfectDays.size > a.perfectDays.size) {
-    queueToast(`⭐ Perfect Day! +${PERFECT_DAY_XP} XP, and Momentum boosts tomorrow’s results.`, 'xp');
+  if (b.perfectWeeks.size > a.perfectWeeks.size) {
+    queueToast(`⭐ Perfect Week! +${PERFECT_WEEK_XP} XP, and Momentum boosts next week’s results.`, 'xp');
     reactions.push({ kind: 'burst', start: now + 400 });
   }
   const had = new Set(achievements(before).filter((x) => x.unlockedOn).map((x) => x.id));
@@ -135,7 +135,7 @@ function render(): void {
   document.getElementById('season-label')!.textContent = season?.name ?? '';
   const streak = careNow(state)?.streak.current ?? 0;
   document.getElementById('level-chip')!.innerHTML = summary
-    ? `${streak ? `<b class="chip-streak" title="Outreach streak">🔥 ${streak}</b>` : ''}<span>LV ${summary.level.level}</span> ${esc(titleForLevel(summary.level.level))}`
+    ? `${streak ? `<b class="chip-streak" title="Outreach streak (weeks)">🔥 ${streak}w</b>` : ''}<span>LV ${summary.level.level}</span> ${esc(titleForLevel(summary.level.level))}`
     : '';
   document.querySelectorAll<HTMLAnchorElement>('[data-tab]').forEach((a) => {
     a.toggleAttribute('aria-current', a.dataset.tab === route);

@@ -1,17 +1,17 @@
-// Quests: today's three dailies, Perfect Day and Momentum, and this week's three weeklies.
+// Quests: this week's three weeklies (with Perfect Week and Momentum) and this month's two monthlies.
 
 import { addDays } from '../../game/care';
 import { formatDate, todayISO } from '../../game/dates';
-import { MOMENTUM, PERFECT_DAY_XP, weekStartOf, type QuestInstance } from '../../game/quests';
+import { MOMENTUM, monthStartOf, PERFECT_WEEK_XP, weekStartOf, type QuestInstance } from '../../game/quests';
 import { esc, plural, seasonSummary, type AppContext } from '../context';
 
-export function todaysQuests(ctx: AppContext, today = todayISO()): { daily: QuestInstance[]; weekly: QuestInstance[] } {
-  const summary = seasonSummary(ctx.state);
-  const quests = summary?.quests ?? [];
+export function currentQuests(ctx: AppContext, today = todayISO()): { weekly: QuestInstance[]; monthly: QuestInstance[] } {
+  const quests = seasonSummary(ctx.state)?.quests ?? [];
   const week = weekStartOf(today);
+  const month = monthStartOf(today);
   return {
-    daily: quests.filter((q) => q.period === 'daily' && q.key === today),
     weekly: quests.filter((q) => q.period === 'weekly' && q.key === week),
+    monthly: quests.filter((q) => q.period === 'monthly' && q.key === month),
   };
 }
 
@@ -33,32 +33,37 @@ export function questCard(q: QuestInstance, compact = false): string {
   </li>`;
 }
 
+function monthEnd(monthStart: string): string {
+  const [y, m] = monthStart.split('-').map(Number);
+  return addDays(m === 12 ? `${y + 1}-01-01` : `${y}-${String(m + 1).padStart(2, '0')}-01`, -1);
+}
+
 export function renderQuests(ctx: AppContext): string {
   const today = todayISO();
   const summary = seasonSummary(ctx.state)!;
-  const { daily, weekly } = todaysQuests(ctx, today);
-  const doneToday = daily.filter((q) => q.completed).length;
-  const perfect = summary.perfectDays.has(today);
-  const momentumToday = summary.momentumDates.has(today);
+  const { weekly, monthly } = currentQuests(ctx, today);
+  const week = weekStartOf(today);
+  const doneThisWeek = weekly.filter((q) => q.completed).length;
+  const perfect = summary.perfectWeeks.has(week);
+  const momentumNow = summary.momentumWeeks.has(week);
   const completedAll = summary.quests.filter((q) => q.completed);
-  const weekEnd = addDays(weekStartOf(today), 6);
 
   const perfectPanel = perfect
-    ? `<div class="banner banner-good">⭐ <strong>Perfect Day!</strong> +${PERFECT_DAY_XP} XP, and tomorrow your replies, commitments and conversions earn <strong>+${MOMENTUM * 100}% Momentum</strong>.</div>`
-    : `<p class="body2">Finish all three for a <strong>Perfect Day</strong>: +${PERFECT_DAY_XP} XP and +${MOMENTUM * 100}% XP on tomorrow’s results (Momentum). ${doneToday}/3 done.</p>`;
+    ? `<div class="banner banner-good">⭐ <strong>Perfect Week!</strong> +${PERFECT_WEEK_XP} XP, and next week your replies, commitments and conversions earn <strong>+${MOMENTUM * 100}% Momentum</strong>.</div>`
+    : `<p class="body2">Finish all three for a <strong>Perfect Week</strong>: +${PERFECT_WEEK_XP} XP and +${MOMENTUM * 100}% XP on next week’s results (Momentum). ${doneThisWeek}/3 done.</p>`;
 
   return `<div class="quests-view">
-    ${momentumToday ? `<div class="banner banner-good">⚡ <strong>Momentum is on today:</strong> replies, commitments and conversions earn +${MOMENTUM * 100}% XP.</div>` : ''}
+    ${momentumNow ? `<div class="banner banner-good">⚡ <strong>Momentum is on this week:</strong> replies, commitments and conversions earn +${MOMENTUM * 100}% XP.</div>` : ''}
     <section class="panel">
-      <div class="section-head"><h1>Today’s quests</h1><span class="body2">New quests at midnight</span></div>
+      <div class="section-head"><h1>This week’s quests</h1><span class="body2">New quests every Monday · this week ends ${formatDate(addDays(week, 6))}</span></div>
       ${perfectPanel}
-      <ul class="quest-list">${daily.map((q) => questCard(q)).join('')}</ul>
-    </section>
-    <section class="panel">
-      <div class="section-head"><h2>This week</h2><span class="body2">Resets Monday · ends ${formatDate(weekEnd)}</span></div>
       <ul class="quest-list">${weekly.map((q) => questCard(q)).join('')}</ul>
     </section>
-    <p class="body2 note">This season: ${plural(completedAll.length, 'quest')} completed, ${plural(summary.perfectDays.size, 'Perfect Day')}, ${summary.questXp} XP from quests. Quests complete automatically as you log outreach.</p>
+    <section class="panel">
+      <div class="section-head"><h2>This month</h2><span class="body2">Ends ${formatDate(monthEnd(monthStartOf(today)))}</span></div>
+      <ul class="quest-list quest-list-2">${monthly.map((q) => questCard(q)).join('')}</ul>
+    </section>
+    <p class="body2 note">This season: ${plural(completedAll.length, 'quest')} completed, ${plural(summary.perfectWeeks.size, 'Perfect Week')}, ${summary.questXp} XP from quests. Quests complete automatically as you log outreach.</p>
     <div class="button-row"><button class="btn btn-primary" type="button" data-action="log">+ Log outreach</button></div>
   </div>`;
 }

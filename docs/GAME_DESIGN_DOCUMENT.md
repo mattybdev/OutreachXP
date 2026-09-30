@@ -1,8 +1,11 @@
 # OutreachXP: Game Design Document
 
-**Version:** 0.3.2
+**Version:** 0.3.3
 **Date:** 2026-09-30
 **Status:** Approved for build. Implementation has started with the Ping generator and Ping Lab (§12).
+
+### Changes in v0.3.3
+- **Re-paced for weekly outreach:** daily quests removed (now 3 weekly + 2 monthly), Perfect Day became **Perfect Week** (+50 XP, Momentum for the next week), streaks count **weeks** (+5% XP per 4 weeks), and Ping's meters drain about 5× slower.
 
 ### Changes in v0.3.2
 - The creature is renamed from Pip to **Ping** (you "ping" people with outreach). Forms follow the same pattern, such as Scholar Ping and Envoy Ping. Players still name their own Ping when it hatches.
@@ -131,7 +134,7 @@ Each outreach is tracked as a **Contact Thread**, one card per person reached. A
 - **Warm Intro multiplier (×1.25):** threads created through a referral earn 25% more XP at every later stage.
 - **Speed bonus (+10 XP):** you followed up within the recommended window (3–7 days after sending with no reply). The window can be changed in settings.
 - **Returning Friend (+25 XP):** re-engaging a contact who committed or converted in a *previous season* (§6.5).
-- **Momentum (+10% results XP for 24 hours):** earned by completing all daily quests (§6.1).
+- **Momentum (+10% results XP for a week):** earned by a Perfect Week, completing all weekly quests (§6.1).
 - **Diminishing returns on sends:** the first 10 initial sends each day earn full XP, sends 11–20 earn 50%, and sends after 20 earn 0 XP (they are still tracked). This keeps the focus on quality.
 - **Streak multiplier:** see §6.4.
 
@@ -260,48 +263,46 @@ Cosmetics are unlocked through achievements and monthly or seasonal quests. They
 
 ## 6. Quests and Streaks
 
-Quests refresh on a schedule. The player sees 3 daily, 3 weekly and 2 monthly quests at a time, plus 1 seasonal quest per showcase phase. They are drawn from pools. **Quests are a boost:** their XP is modest, and the main quest reward, *Momentum*, multiplies real results.
+The game is paced for a lead who does outreach **a few times a week, not every day**. There are no daily quests, streaks count weeks, and Ping's needs drain slowly.
 
-### 6.1 Daily quests (pick 3; reset at local midnight)
+Quests refresh on a schedule. The player sees 3 weekly and 2 monthly quests at a time (plus, later, 1 seasonal quest per showcase phase), drawn from pools with a seeded shuffle. **Quests are a boost:** their XP is modest, and the main quest reward, *Momentum*, multiplies real results. Quests complete automatically as outreach is logged.
 
-| Quest | Goal | Reward |
-|---|---|---|
-| First Letter | Send 1 outreach email | 10 XP |
-| Triple Threat | Send 3 outreach emails | 15 XP |
-| Don't Leave Them Hanging | Send 1 follow-up to a thread aging 3+ days | 15 XP |
-| Personal Touch | Send 2 personalized emails | 10 XP |
-| Log the Win | Log any reply | 10 XP |
-| New Horizons | Contact someone from a new organization | 15 XP |
-| Tend the Garden | Clear all follow-up reminders due today | 15 XP + Energy refill |
-
-**Perfect Day:** finishing all 3 dailies gives **+15 XP and Momentum**, which adds +10% XP to all *results* (stage XP) for 24 hours.
-
-### 6.2 Weekly quests (pick 3; reset on the configured week start, Monday by default)
+### 6.1 Weekly quests (pick 3; new quests every Monday)
 
 | Quest | Goal | Reward |
 |---|---|---|
-| Well-Rounded | Contact people in 3+ of the 4 categories | 75 XP |
-| Conversation Starter | Get 3 replies | 60 XP |
-| Door Opener | Get 1 referral or CC | 50 XP |
-| Pipeline Pusher | Move 5 threads forward a stage | 60 XP |
-| Category Focus: *[X]* | Send 5 emails to the category Ping is lowest in | 75 XP + 5 bonus stat points |
-| Consistency | Log outreach on 4 of 7 days | 60 XP + a Streak Shield (once per month) |
+| Outreach Burst | Send 5 outreach emails | 50 XP |
+| Well-Rounded | Email people in 3 of the 4 categories | 75 XP |
+| Personal Touch | Send 3 personalized emails | 50 XP |
+| New Horizons | Contact 2 new organizations | 60 XP |
+| Follow-Through | Follow up on 2 unanswered emails (only offered when follow-ups are due) | 50 XP |
+| Conversation Starter | Get 2 replies | 60 XP |
+| Door Opener | Get a referral or a CC | 50 XP |
+| Pipeline Pusher | Move 3 contacts forward a stage | 60 XP |
+| Category Focus: *[X]* | Send 3 emails to the category Ping is lowest in | 75 XP + 5 bonus stat points |
+| Steady Hand | Log outreach on 2 different days | 50 XP |
 
-### 6.3 Monthly quests (pick 2; reset on the 1st)
+**Perfect Week:** finishing all 3 weekly quests gives **+50 XP and Momentum**, which adds +10% XP to all *results* (replies, commitments, conversions) for the whole next week.
+
+### 6.2 Monthly quests (pick 2; new quests on the 1st)
 
 | Quest | Goal | Reward |
 |---|---|---|
-| Recruitment Drive | Get 3 commitments | 250 XP + cosmetic |
-| Big Net | Reach 25 unique contacts | 200 XP |
+| Recruitment Drive | Get 3 commitments | 250 XP |
+| Big Net | Email 15 different people | 200 XP |
 | Bridge Builder | Contact 5 new organizations | 200 XP |
-| Closer | 1 conversion | 250 XP + cosmetic |
-| Four Corners | At least 1 reply from every category | 200 XP |
+| Closer | Get 1 conversion | 250 XP |
+| Full House | Get a reply from all 4 categories | 200 XP |
+| Perfectionist | Complete a Perfect Week | 150 XP |
 
-### 6.4 Streaks
-- **Outreach streak:** consecutive *active days* with at least 1 outreach action logged (send, follow-up or logged reply).
-- **Streak multiplier:** +5% XP per 7-day block, up to +25% at 35 days.
-- **Active days are configurable.** Weekdays only is the default, and the player can add holidays or time off, so rest never breaks a streak.
-- **Streak Shields:** you earn one every 5 levels or from certain quests, and it automatically protects one missed active day.
+### 6.3 (Removed) Daily quests
+Daily quests were dropped in v0.3.3 because the lead won't typically do outreach every day.
+
+### 6.4 Streaks (weekly)
+- **Outreach streak:** consecutive **weeks** (Monday–Sunday) with at least 1 outreach action logged.
+- **Streak multiplier:** +5% XP for every 4 weeks of streak, up to +25% at 20 weeks.
+- **Time off:** a week in which every active day is marked as a holiday never breaks a streak.
+- **Streak Shields (planned):** earned every 5 levels; each protects one missed week.
 
 ### 6.5 Seasons (configurable every year)
 
@@ -380,7 +381,7 @@ Achievements are permanent, lifetime badges shown on the **Achievements** page a
 | Default | Ping's Room |
 | Common | Mailroom (Hatchling), Café Chat (First Contact), Sunny Window (Pen Pal), Cork Board (Believer) |
 | Uncommon | Map Room (Four Corners), Rainy Window, animated (Persistence Pays), Sunset (On a Roll), Library (Office Hours), Game Studio (Mixer Regular), Community Garden (Community Builder), Capitol Steps (Public Servant) |
-| Rare | Expo Hall with moving spotlights (Signed, Sealed, Delivered), Ocean Breeze with waves (The Ripple), The Network with pulses (Chain Reaction), Starry Night (Perfect Day), New Dawn (Comeback Kid) |
+| Rare | Expo Hall with moving spotlights (Signed, Sealed, Delivered), Ocean Breeze with waves (The Ripple), The Network with pulses (Chain Reaction), Starry Night (Perfect Week), New Dawn (Comeback Kid) |
 | Epic | City at Night (The Conversation), Retro Arcade (Well-Rounded), Paper Airplane Sky (Postmaster) |
 | Legendary | Showcase Stage (Showrunner), Aurora (Unstoppable), Hall of Fame (Hall of Fame) |
 
@@ -408,7 +409,7 @@ Achievements are permanent, lifetime badges shown on the **Achievements** page a
 | Four Corners | Contact all 4 categories in a single day |
 | Well-Rounded | Every stat at Tier 2 or above |
 | Polymath | Unlock the Polymath form |
-| Streak: Week / Month / Season | 5 / 20 / 60 active-day streak |
+| On a Roll / Unstoppable | 4-week / 12-week outreach streak |
 | Comeback Kid | Wake Ping from hibernation and then hit a 5-day streak |
 | Alumni Network | Win back a Returning Friend from a previous season |
 | Veteran Lead | Complete 2 / 3 / 5 seasons |
@@ -715,16 +716,16 @@ QuestState    { id, templateId, period: 'daily'|'weekly'|'monthly'|'seasonal',
 **Build progress:**
 - Part 1 (core loop) ✅ built: season setup, Quick Log with live XP preview, pipeline, the full XP engine (§3), levels and titles, undo, and local save with export/import.
 - Part 2 (Ping comes alive) ✅ built: Fullness/Joy/Energy meters that drain only on active days and set Ping's mood; daily check-ins restore energy; hibernation after 7 active days at zero, with a +20 XP welcome-back bonus; outreach streaks with configurable active days and holidays and the +5%-per-week XP multiplier; reaction animations (paper airplane, falling envelope with hearts, happy dance, confetti, and a sparkle burst for hatching, level-ups and waking).
-- Part 3 (quests and achievements) ✅ built: 3 daily and 3 weekly quests per period, picked with a seeded shuffle from the §6.1/§6.2 pools (follow-up quests only appear when a follow-up is due); quests complete automatically from logged outreach; Perfect Day (+15 XP) gives Momentum (+10% XP on replies, commitments and conversions) the next day; Category Focus targets Ping's lowest stat and adds 5 stat points; 22 achievements with unlock dates and progress on the Achievements page, each unlocking a procedurally drawn background (common to legendary); the Quick Log preview shows which quests a log will complete.
+- Part 3 (quests and achievements) ✅ built, then re-paced for weekly use in v0.3.3: 3 weekly and 2 monthly quests per period, picked with a seeded shuffle from the §6.1/§6.2 pools (follow-up quests only appear when a follow-up is due); quests complete automatically from logged outreach; Perfect Week (+50 XP) gives Momentum (+10% XP on replies, commitments and conversions) for the next week; Category Focus targets Ping's lowest stat and adds 5 stat points; 22 achievements with unlock dates and progress on the Achievements page, each unlocking a procedurally drawn background (common to legendary); the Quick Log preview shows which quests a log will complete.
 - **The MVP is complete.** Next up is v0.2 (§12).
 
-**Meter tuning (as built):** start 70/70/70. Daily drain on active days: Fullness −30, Joy −15, Energy −20. Refills: send +12 Fullness; follow-up +10 Fullness and +8 Energy; reply or positive reply +15 Joy; CC +5 Joy per person (up to 4); referral +15 Joy; commitment +25 Joy; conversion +35 Joy; closing the loop +3 Joy; daily check-in +30 Energy. Mood: sleepy when hibernating or Energy < 25, sad when Fullness or Joy < 20, happy after outreach today or when Fullness and Joy are both 60+, otherwise neutral.
+**Meter tuning (as built, weekly pace):** start 70/70/70. Drain per active day: Fullness −6, Joy −4, Energy −5 (about −30/−20/−25 per work week), so one outreach session a week keeps Ping content; about two quiet weeks make it sad; hibernation comes after all meters sit at zero for 3 more active days (roughly 4–5 quiet weeks). Refills: send +12 Fullness; follow-up +10 Fullness and +8 Energy; reply or positive reply +15 Joy; CC +5 Joy per person (up to 4); referral +15 Joy; commitment +25 Joy; conversion +35 Joy; closing the loop +3 Joy; daily check-in +30 Energy. Mood: sleepy when hibernating or Energy < 25, sad when Fullness or Joy < 20, happy after outreach today or when Fullness and Joy are both 60+, otherwise neutral.
 
 - **Season setup** (name and key dates) and a countdown on the home screen
 - Quick Log (new thread plus stage updates) for all 4 categories
 - XP, levels, 4 stats, care meters, streaks with configurable active days
 - **Procedural Ping generator** with continuous growth for all 4 stats, Egg, Baby and Kid stages, tier details up to T3, and the Ping Lab tuning page
-- Daily and weekly quests, Perfect Day and Momentum
+- Weekly and monthly quests, Perfect Week and Momentum
 - About 15 achievements
 - Pipeline list view
 - Brand UI (tokens, fonts, buttons)

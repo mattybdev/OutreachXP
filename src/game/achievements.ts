@@ -1,7 +1,7 @@
 // Achievements (GDD §7): permanent badges across all seasons, replayed from the event log.
 // Each records the date it was unlocked; locked ones show progress where it makes sense.
 
-import { streakOn } from './care';
+import { activityWeeks, addDays, streakOn } from './care';
 import { computeSeason, sortEvents } from './engine';
 import { CATEGORIES, type Category, type EventType, type GameState, type OutreachEvent } from './types';
 
@@ -82,11 +82,14 @@ const DEFS: Def[] = [
     }
     return { on: null };
   } },
-  { id: 'streak-week', title: 'On a Roll', description: 'Reach a 5-day outreach streak', icon: '🔥', group: 'Habits', check: (c) => streakReached(c, 5) },
-  { id: 'streak-month', title: 'Unstoppable', description: 'Reach a 20-day outreach streak', icon: '☄️', group: 'Habits', check: (c) => streakReached(c, 20) },
-  { id: 'perfect-day', title: 'Perfect Day', description: 'Complete all 3 daily quests in one day', icon: '⭐', group: 'Habits', check: (c) => {
-    const days = c.state.seasons.flatMap((s) => [...computeSeason(c.state, s.id).perfectDays]).sort();
-    return { on: days[0] ?? null };
+  { id: 'streak-week', title: 'On a Roll', description: 'Reach a 4-week outreach streak', icon: '🔥', group: 'Habits', check: (c) => streakReached(c, 4) },
+  { id: 'streak-month', title: 'Unstoppable', description: 'Reach a 12-week outreach streak', icon: '☄️', group: 'Habits', check: (c) => streakReached(c, 12) },
+  { id: 'perfect-week', title: 'Perfect Week', description: 'Complete all 3 weekly quests in one week', icon: '⭐', group: 'Habits', check: (c) => {
+    // A Perfect Week is earned when its week ends (or on its last logged day, if sooner).
+    const weeks = c.state.seasons.flatMap((s) => [...computeSeason(c.state, s.id).perfectWeeks]).sort();
+    if (!weeks.length) return { on: null };
+    const inWeek = c.events.filter((e) => e.date >= weeks[0] && e.date < addDays(weeks[0], 7));
+    return { on: inWeek.at(-1)?.date ?? weeks[0] };
   } },
   { id: 'well-rounded', title: 'Well-Rounded', description: 'Reach Tier 2 in all four stats in one season', icon: '🌈', group: 'Habits', check: (c) => {
     let best: string | null = null;
@@ -117,13 +120,14 @@ const DEFS: Def[] = [
 function streakReached(c: Ctx, length: number): { on: string | null; value: number; goal: number } {
   let best = 0;
   for (const season of c.state.seasons) {
-    const dates = [...new Set(c.events.filter((e) => e.seasonId === season.id).map((e) => e.date))].sort();
-    const activity = new Set(dates);
+    const events = c.events.filter((e) => e.seasonId === season.id);
+    if (!events.length) continue;
+    const weeks = activityWeeks(events);
     const memo = new Map<string, number>();
-    for (const d of dates) {
-      const s = streakOn(d, activity, c.state.settings, dates[0], memo);
+    for (const e of events) {
+      const s = streakOn(e.date, weeks, c.state.settings, events[0].date, memo);
       best = Math.max(best, s);
-      if (s >= length) return { on: d, value: length, goal: length };
+      if (s >= length) return { on: e.date, value: length, goal: length };
     }
   }
   return { on: null, value: best, goal: length };

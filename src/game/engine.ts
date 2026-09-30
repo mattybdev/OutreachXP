@@ -2,9 +2,9 @@
 // so undo is safe and the numbers can be retuned later by replaying.
 
 import { STATS, type Stat, type Stats } from '../ping/genome';
-import { seasonStart, simulateCare, streakMultiplier, streakOn } from './care';
+import { activityWeeks, seasonStart, simulateCare, streakMultiplier, streakOn, weekStartOf } from './care';
 import { daysBetween, todayISO } from './dates';
-import { evaluateQuests, momentumDates, MOMENTUM, MOMENTUM_TYPES, type QuestEvent, type QuestInstance } from './quests';
+import { evaluateQuests, momentumWeeks, MOMENTUM, MOMENTUM_TYPES, type QuestEvent, type QuestInstance } from './quests';
 import { LIMITS, levelFromXp, STAT_POINTS, WARM_INTRO_MULTIPLIER, XP, type LevelInfo } from './rules';
 import {
   CATEGORY_STAT,
@@ -36,15 +36,17 @@ export interface SeasonSummary {
   byEventId: Map<string, LedgerEntry>;
   /** XP from logged outreach. */
   eventXp: number;
-  /** XP from completed quests and Perfect Days. */
+  /** XP from completed quests and Perfect Weeks. */
   questXp: number;
   totalXp: number;
   stats: Stats;
   level: LevelInfo;
   hasOutreach: boolean;
   quests: QuestInstance[];
-  perfectDays: Set<string>;
-  momentumDates: Set<string>;
+  /** Weeks (by Monday) where every weekly quest was completed. */
+  perfectWeeks: Set<string>;
+  /** Weeks (by Monday) with Momentum active. */
+  momentumWeeks: Set<string>;
 }
 
 export function orgKey(org: string): string {
@@ -90,7 +92,7 @@ export function computeSeason(state: GameState, seasonId: string, today = todayI
   const seasonEvents = sortEvents(state.events.filter((e) => e.seasonId === seasonId));
   const lastDate = seasonEvents.at(-1)?.date ?? '0000-01-01';
   const care = simulateCare(state, seasonId, lastDate);
-  const activity = new Set(seasonEvents.map((e) => e.date));
+  const activity = activityWeeks(seasonEvents);
   const floor = seasonStart(state, seasonId);
   const streakMemo = new Map<string, number>();
 
@@ -174,16 +176,16 @@ export function computeSeason(state: GameState, seasonId: string, today = todayI
     stats[stat] += statPoints;
   }
 
-  // Quests are scored from the same events; a Perfect Day gives the next day Momentum.
+  // Quests are scored from the same events; a Perfect Week gives the next week Momentum.
   const season = state.seasons.find((s) => s.id === seasonId);
   const questEvents: QuestEvent[] = entries.map((e) => ({
     event: e.event, category: STAT_CATEGORY[e.stat], statPoints: e.statPoints, newOrg: newOrgs.has(e.event.id),
   }));
   const until = lastDate > today ? lastDate : today;
   const quests = evaluateQuests(state, questEvents, floor, until, season?.pingSeed ?? 1);
-  const momentum = momentumDates(quests.perfectDays);
+  const momentum = momentumWeeks(quests.perfectWeeks);
   for (const entry of entries) {
-    if (!momentum.has(entry.event.date) || !MOMENTUM_TYPES.includes(entry.event.type)) continue;
+    if (!momentum.has(weekStartOf(entry.event.date)) || !MOMENTUM_TYPES.includes(entry.event.type)) continue;
     const bonus = Math.round(entry.xp * MOMENTUM);
     if (bonus <= 0) continue;
     entry.parts.push({ label: 'Momentum +10%', xp: bonus });
@@ -204,8 +206,8 @@ export function computeSeason(state: GameState, seasonId: string, today = todayI
     level: levelFromXp(allXp, hasOutreach),
     hasOutreach,
     quests: quests.quests,
-    perfectDays: quests.perfectDays,
-    momentumDates: momentum,
+    perfectWeeks: quests.perfectWeeks,
+    momentumWeeks: momentum,
   };
 }
 

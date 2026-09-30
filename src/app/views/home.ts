@@ -7,7 +7,8 @@ import { CATEGORY_LABEL, type Category } from '../../game/types';
 import { FORM_NAMES, rawTier, resolveForm, STATS, TIER_THRESHOLDS, type PingGenome } from '../../ping/genome';
 import { statAccent } from '../../theme';
 import { moodFor, type Meters } from '../../game/care';
-import { questCard, todaysQuests } from './quests';
+import { currentQuests, questCard } from './quests';
+import { weekStartOf } from '../../game/care';
 import { careNow, categoryChip, currentSeason, esc, plural, relativeDay, seasonSummary, threadViews, upcomingDates, type AppContext } from '../context';
 
 const STAT_CATEGORY: Record<string, Category> = { intellect: 'academia', craft: 'industry', heart: 'organizations', authority: 'government' };
@@ -51,8 +52,8 @@ function renderCare(ctx: AppContext): string {
   }).join('');
   const bonus = Math.round((streak.multiplier - 1) * 100);
   const streakLine = streak.current
-    ? `<div class="streak"><span class="flame" aria-hidden="true">🔥</span><strong>${plural(streak.current, 'day')}</strong> outreach streak${bonus ? ` · <span class="xp-gain">+${bonus}% XP</span>` : ` · ${7 - (streak.current % 7)} more for +5% XP`}</div>`
-    : `<div class="streak body2">Log outreach on your active days to start a streak (weekends and holidays don’t count against you).</div>`;
+    ? `<div class="streak"><span class="flame" aria-hidden="true">🔥</span><strong>${plural(streak.current, 'week')}</strong> outreach streak${bonus ? ` · <span class="xp-gain">+${bonus}% XP</span>` : ` · ${plural(4 - (streak.current % 4), 'more week')} for +5% XP`}</div>`
+    : `<div class="streak body2">Log outreach in consecutive weeks to build a streak (weeks you mark as time off don’t count against you).</div>`;
   const banner = care.hibernating
     ? `<div class="banner">💤 ${name} is hibernating. Send one email to wake it up, with a <strong>+20 XP</strong> welcome-back bonus.</div>`
     : '';
@@ -127,6 +128,8 @@ function renderCountdown(ctx: AppContext): string {
 function renderToday(ctx: AppContext, today: string): string {
   const summary = seasonSummary(ctx.state)!;
   const sentToday = summary.entries.filter((e) => e.event.type === 'sent' && e.event.date === today).length;
+  const week = weekStartOf(today);
+  const sentThisWeek = summary.entries.filter((e) => e.event.type === 'sent' && e.event.date >= week).length;
   const fullLeft = Math.max(0, LIMITS.fullSendsPerDay - sentToday);
   const due = threadViews(ctx.state, today).filter((v) => v.due).sort((a, b) => (a.lastDate ?? '').localeCompare(b.lastDate ?? ''));
   const dueList = due.slice(0, 5).map((v) => `<li>
@@ -135,17 +138,17 @@ function renderToday(ctx: AppContext, today: string): string {
     </li>`).join('');
   const streak = careNow(ctx.state, today)!.streak;
   const risk = streak.atRisk
-    ? `<p class="at-risk">🔥 Log any outreach today to keep your ${plural(streak.current, 'day')} streak going.</p>`
+    ? `<p class="at-risk">🔥 Log any outreach this week to keep your ${plural(streak.current, 'week')} streak going.</p>`
     : '';
-  const { daily } = todaysQuests(ctx, today);
-  const quests = daily.length
-    ? `<h3>Today’s quests <a class="h3-link" href="#quests">See all</a></h3><ul class="quest-mini-list">${daily.map((q) => questCard(q, true)).join('')}</ul>`
+  const { weekly } = currentQuests(ctx, today);
+  const quests = weekly.length
+    ? `<h3>This week’s quests <a class="h3-link" href="#quests">See all</a></h3><ul class="quest-mini-list">${weekly.map((q) => questCard(q, true)).join('')}</ul>`
     : '';
   return `<section class="panel today">
-    <h2>Today</h2>
+    <h2>This week</h2>
     ${risk}
     ${quests}
-    <p>${plural(sentToday, 'email')} sent today · <span class="body2">${fullLeft ? `${fullLeft} more at full XP` : 'Daily full-XP sends used: quality over quantity!'}</span></p>
+    <p>${plural(sentThisWeek, 'email')} sent this week${sentToday ? ` · <span class="body2">${fullLeft ? `${fullLeft} more today at full XP` : 'Today’s full-XP sends used: quality over quantity!'}</span>` : ''}</p>
     ${due.length
       ? `<h3>${plural(due.length, 'follow-up')} due</h3><ul class="due-list">${dueList}</ul>${due.length > 5 ? `<a href="#pipeline">See all in the pipeline</a>` : ''}`
       : `<p class="body2">No follow-ups due. Emails get a follow-up reminder after ${ctx.state.settings.followUpMinDays} days without a reply.</p>`}
