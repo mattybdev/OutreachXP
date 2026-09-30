@@ -1,8 +1,12 @@
 # OutreachXP: Game Design Document
 
-**Version:** 0.3 (revised after second review)
+**Version:** 0.3.1
 **Date:** 2026-09-30
-**Status:** Awaiting third review.
+**Status:** Approved for build. Implementation has started with the Pip generator and Pip Lab (§12).
+
+### Changes in v0.3.1
+- All open questions from v0.3 are resolved (§14).
+- Implementation notes were added to §9.4 from building the generator.
 
 ### Changes in v0.3
 | Area | Change |
@@ -512,7 +516,7 @@ The game follows the **SGS&C Style Guide**. There are two layers:
 Pip and the world use only these colors, so the art always looks like SGS&C:
 
 - **Orange ramp:** `#8A2A0B` · `#C9401A` · **`#FF5B23`** · `#FF8A63` · `#FFC4AE`
-- **Neutral ramp:** **`#000000`** · **`#232323`** · `#3A393E` · `#6E6C73` · **`#A3A1A8`** · `#D6D5D9` · `#F2F2F2` · **`#FFFFFF`**
+- **Neutral ramp:** **`#000000`** · `#141414` · **`#232323`** · `#3A393E` · `#6E6C73` · **`#A3A1A8`** · `#D6D5D9` · `#F2F2F2` · **`#FFFFFF`**
 
 Values in **bold** are from the style guide.
 
@@ -583,6 +587,12 @@ Layer order (back → front):
 - Parts never cover the eyes.
 - The silhouette must still read at 1× scale (48 px).
 - Each part has a size cap so balanced and lopsided Pips both look good.
+
+**Implementation notes (from the first build)**
+- The generator draws on a **64×64** pixel canvas. Pip's body stays within about 48 px, and the extra room holds orbiting items, auras and the plinth.
+- Small hearts use hand-authored **pixel glyphs**, because a sampled heart curve reads as a "V" at small sizes. Other parts use shapes.
+- The body's highlight step is kept to a tiny specular spot, so the charcoal body doesn't look washed out.
+- Animation is quantized to **10 fps** for a crisp, retro feel.
 
 **Pip Lab (developer and tuning page).** A hidden page with sliders for every stat, life stage, form, seed and mood. It shows a grid of generated Pips, and is used to tune the look and review changes. It can also export a PNG or a sprite sheet for sharing.
 
@@ -682,6 +692,9 @@ QuestState    { id, templateId, period: 'daily'|'weekly'|'monthly'|'seasonal',
 
 ## 12. Scope and Roadmap
 
+### Milestone 0: "Pip Lab" ✅ built
+- Procedural Pip generator (§9.4), theme file (§9.6), Pip Lab page, unit tests and GitHub Pages deployment
+
 ### MVP (v0.1: "Pip Hatches")
 - **Season setup** (name and key dates) and a countdown on the home screen
 - Quick Log (new thread plus stage updates) for all 4 categories
@@ -725,9 +738,13 @@ Since the goal is to change behavior, the Journal tracks these for the lead's ow
 
 ---
 
-## 14. Open Questions for Review
+## 14. Decisions Log (Open Questions Resolved)
 
-1. **Hyperlink hover color:** do you have the exact hex value for the guide's light-orange hover swatch? Until then we use `#FF8A63`.
-2. **Authority visuals:** does the progression from feet, to badge, to sash, to shield read as "government" to you? An alternative is a capitol-dome hat or column motifs.
-3. **Seed uniqueness:** should each season's Pip get random unique details (the current plan), or should every Pip start identical so seasons compare purely on stats?
-4. **Next step:** if this version looks good, the proposal is to start the MVP (§12) by building the **procedural Pip generator and the Pip Lab first**. That lets you see and tune the character before the rest of the game is built.
+| Question | Decision |
+|---|---|
+| Hyperlink hover color | Use `#FF8A63`. |
+| Authority visuals | Feet → badge → sash → shield is approved. |
+| Seed uniqueness | Each season's Pip gets small random differences from its seed. |
+| First build step | Build the procedural Pip generator and the Pip Lab first. |
+
+There are no open questions right now. New ones will be added here as the build continues.
