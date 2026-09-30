@@ -1,14 +1,14 @@
-// Dev helper: renders a PNG contact sheet of generated Pips (run: npm run sheet).
+// Dev helper: renders a PNG contact sheet of generated Pings (run: npm run sheet).
 import { writeFileSync } from 'node:fs';
-import { renderPip } from '../src/pip/render';
-import type { PipGenome, LifeStage, Mood } from '../src/pip/genome';
+import { renderPing } from '../src/ping/render';
+import type { PingGenome, LifeStage, Mood } from '../src/ping/genome';
 import { test } from 'vitest';
 import { encodeSheet } from './png';
 
 test('contact sheet', () => {
-  const out = process.env.SHEET_OUT ?? 'pip-sheet.png';
+  const out = process.env.SHEET_OUT ?? 'ping-sheet.png';
   const scale = 2;
-  const rows: { label: string; g: PipGenome }[][] = [];
+  const rows: { label: string; g: PingGenome }[][] = [];
   const base = { intellect: 0, craft: 0, heart: 0, authority: 0 };
   const stages: LifeStage[] = ['egg', 'baby', 'kid', 'teen', 'adult', 'legend'];
   rows.push(stages.map((st) => ({ label: st, g: { seed: 7, lifeStage: st, mood: 'neutral', stats: { intellect: 120, craft: 90, heart: 70, authority: 60 } } })));
@@ -28,6 +28,6 @@ test('contact sheet', () => {
   rows.push([1, 2, 4, 5, 6, 8].map((seed, i) => ({ label: 'seed', g: { seed, lifeStage: 'teen', mood: (['happy', 'neutral', 'sad', 'sleepy'] as Mood[])[i % 4], stats: { intellect: 90, craft: 70, heart: 50, authority: 90 } } })));
 
   const t = Number(process.env.SHEET_TIME ?? 0);
-  writeFileSync(out, encodeSheet(rows.map((row) => row.map(({ g }) => renderPip(g, { time: t }))), scale));
+  writeFileSync(out, encodeSheet(rows.map((row) => row.map(({ g }) => renderPing(g, { time: t }))), scale));
 
 });

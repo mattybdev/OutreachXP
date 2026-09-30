@@ -199,7 +199,7 @@ export function ellipse(cx: number, cy: number, rx: number, ry: number): Shape {
   };
 }
 
-/** Superellipse with separate top/bottom radii: Pip's egg-shaped body. */
+/** Superellipse with separate top/bottom radii: Ping's egg-shaped body. */
 export function blob(cx: number, cy: number, rx: number, ryTop: number, ryBottom: number, power = 2.3): Shape {
   return {
     bbox: [cx - rx, cy - ryTop, cx + rx, cy + ryBottom],

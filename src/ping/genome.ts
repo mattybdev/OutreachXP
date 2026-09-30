@@ -1,4 +1,4 @@
-// Pip's genome: everything needed to redraw a Pip exactly (GDD §9.4).
+// Ping's genome: everything needed to redraw a Ping exactly (GDD §9.4).
 
 export const STATS = ['intellect', 'craft', 'heart', 'authority'] as const;
 export type Stat = (typeof STATS)[number];
@@ -16,18 +16,18 @@ export type HybridForm = 'inventor' | 'mentor' | 'strategist' | 'maker' | 'archi
 export type Form = 'none' | PureForm | HybridForm | 'polymath';
 
 export const FORM_NAMES: Record<Form, string> = {
-  none: 'Pip',
-  scholar: 'Scholar Pip',
-  forge: 'Forge Pip',
-  kindred: 'Kindred Pip',
-  envoy: 'Envoy Pip',
-  inventor: 'Inventor Pip',
-  mentor: 'Mentor Pip',
-  strategist: 'Strategist Pip',
-  maker: 'Maker Pip',
-  architect: 'Architect Pip',
-  diplomat: 'Diplomat Pip',
-  polymath: 'Polymath Pip',
+  none: 'Ping',
+  scholar: 'Scholar Ping',
+  forge: 'Forge Ping',
+  kindred: 'Kindred Ping',
+  envoy: 'Envoy Ping',
+  inventor: 'Inventor Ping',
+  mentor: 'Mentor Ping',
+  strategist: 'Strategist Ping',
+  maker: 'Maker Ping',
+  architect: 'Architect Ping',
+  diplomat: 'Diplomat Ping',
+  polymath: 'Polymath Ping',
 };
 
 const HYBRIDS: Record<string, HybridForm> = {
@@ -39,7 +39,7 @@ const HYBRIDS: Record<string, HybridForm> = {
   'heart+authority': 'diplomat',
 };
 
-export interface PipGenome {
+export interface PingGenome {
   seed: number;
   lifeStage: LifeStage;
   stats: Stats;
@@ -73,7 +73,7 @@ export function visibleTier(points: number, stage: LifeStage): number {
 
 /**
  * Points that count toward continuous growth. Growth stored beyond the stage
- * cap is held back until Pip grows into the next stage (GDD §4.3).
+ * cap is held back until Ping grows into the next stage (GDD §4.3).
  */
 export function effectivePoints(points: number, stage: LifeStage): number {
   const cap = STAGE_TIER_CAP[stage];

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { effectivePoints, hybridOf, rawTier, resolveForm, visibleTier, type Stats } from '../src/pip/genome';
+import { effectivePoints, hybridOf, rawTier, resolveForm, visibleTier, type Stats } from '../src/ping/genome';
 
 const stats = (intellect: number, craft: number, heart: number, authority: number): Stats => ({ intellect, craft, heart, authority });
 

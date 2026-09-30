@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "sheet": "PIP_SHEET=1 vitest run"
+    "sheet": "PING_SHEET=1 vitest run"
   },
   "devDependencies": {
     "@types/node": "^26.6.3",

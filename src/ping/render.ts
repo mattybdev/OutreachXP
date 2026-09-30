@@ -1,4 +1,4 @@
-// Procedural Pip renderer (GDD §9.4). Same genome + same time → same pixels.
+// Procedural Ping renderer (GDD §9.4). Same genome + same time → same pixels.
 
 import { outlineColor, ramps } from '../theme';
 import {
@@ -10,7 +10,7 @@ import {
   visibleTier,
   type Form,
   type LifeStage,
-  type PipGenome,
+  type PingGenome,
   type Stat,
 } from './genome';
 import { blob, capsule, ellipse, heart, PixelCanvas, rect, shield, triangle, type Shape } from './raster';
@@ -23,7 +23,7 @@ import { deriveTraits, mulberry32, type Traits } from './traits';
  */
 export const PIXEL_DENSITY = 2;
 const D = PIXEL_DENSITY;
-export const PIP_CANVAS = 64 * D;
+export const PING_CANVAS = 64 * D;
 export const GROUND = 58 * D;
 const FPS = 10;
 
@@ -36,7 +36,7 @@ export interface RenderOptions {
   dither?: boolean;
 }
 
-export interface PipFrame {
+export interface PingFrame {
   width: number;
   height: number;
   pixels: (string | null)[];
@@ -59,7 +59,7 @@ const STAT_TWEAKS: Record<Stat, Partial<Tweaks>> = {
 };
 
 /** Forms add a signature look from their primary stat and body tweaks from their stats (GDD §4.4). */
-function formStyle(form: Form, genome: PipGenome) {
+function formStyle(form: Form, genome: PingGenome) {
   const tweaks: Tweaks = { headBoost: 0, armThick: 0, bodyWide: 0, legMul: 0, blush: 0 };
   const stats = formStats(form).sort((a, b) => genome.stats[b] - genome.stats[a]);
   const strength = stats.length > 1 ? 0.6 : 1;
@@ -69,8 +69,8 @@ function formStyle(form: Form, genome: PipGenome) {
   return { tweaks, signature: (stats[0] ?? null) as Stat | null, polymath: form === 'polymath' };
 }
 
-export function renderPip(genome: PipGenome, opts: RenderOptions = {}): PipFrame {
-  const canvas = new PixelCanvas(PIP_CANVAS, PIP_CANVAS);
+export function renderPing(genome: PingGenome, opts: RenderOptions = {}): PingFrame {
+  const canvas = new PixelCanvas(PING_CANVAS, PING_CANVAS);
   const frameIndex = Math.floor((opts.time ?? 0) * FPS);
   const t = frameIndex / FPS;
   const traits = deriveTraits(genome.seed);
@@ -88,7 +88,7 @@ export function renderPip(genome: PipGenome, opts: RenderOptions = {}): PipFrame
 
 function drawEgg(c: PixelCanvas, traits: Traits, t: number): void {
   const wobble = (t + traits.bobPhase) % 3 < 0.4 ? (Math.floor(t * FPS) % 2 ? D : -D) : 0;
-  const cx = PIP_CANVAS / 2 + wobble;
+  const cx = PING_CANVAS / 2 + wobble;
   const cy = GROUND - 9 * D;
   const egg = c.newPart({ outline: true });
   c.fill(blob(cx, cy, 8.5 * D, 11 * D, 9 * D, 2), ramps.paper, egg, { thresholds: [-0.25, 0.3, 0.9] });
@@ -106,7 +106,7 @@ function drawEgg(c: PixelCanvas, traits: Traits, t: number): void {
 
 function drawCreature(
   c: PixelCanvas,
-  genome: PipGenome,
+  genome: PingGenome,
   form: Form,
   traits: Traits,
   t: number,
@@ -137,7 +137,7 @@ function drawCreature(
   const beat = tier.heart >= 3 ? Math.max(0, Math.sin(t * Math.PI * 2 * 1.1)) ** 8 : 0;
 
   // ── Layout ──
-  const cx = PIP_CANVAS / 2 + sway;
+  const cx = PING_CANVAS / 2 + sway;
   const rx = H * 0.56 * traits.squish * (1 + tweaks.bodyWide);
   const ryTop = H * 0.55 * (1 + tweaks.headBoost + 0.12 * g.intellect) * (mood === 'sad' ? 0.95 : 1) * breathe;
   const ryBottom = H * 0.45;
@@ -181,7 +181,7 @@ function drawCreature(
   books.filter((o) => !o.front).forEach((o) => drawBook(c, o.x, o.y));
   tools.filter((o) => !o.front).forEach((o) => drawTool(c, o.x, o.y, o.index));
 
-  // ── Friends (Heart T4) hop beside Pip ──
+  // ── Friends (Heart T4) hop beside Ping ──
   if (tier.heart >= 4) {
     const friends = c.newPart({ outline: true });
     for (const side of [-1, 1]) {
@@ -522,7 +522,7 @@ function drawEars(
   }
 }
 
-function drawMouth(c: PixelCanvas, cx: number, y: number, s: number, mood: PipGenome['mood']): void {
+function drawMouth(c: PixelCanvas, cx: number, y: number, s: number, mood: PingGenome['mood']): void {
   const hw = Math.max(1.5 * D, s * 1.6);
   const line = ramps.neutral[5];
   // A 1px curve y = y0 + depth·(1 − u²) across the mouth width (depth < 0 frowns).
@@ -632,7 +632,7 @@ function rgba(hex: string): number {
 let scratch: HTMLCanvasElement | null = null;
 
 /** Draw a frame onto a 2D context at an integer scale with nearest-neighbour filtering. */
-export function drawFrame(ctx: CanvasRenderingContext2D, frame: PipFrame, scale: number, ox = 0, oy = 0): void {
+export function drawFrame(ctx: CanvasRenderingContext2D, frame: PingFrame, scale: number, ox = 0, oy = 0): void {
   scratch ??= document.createElement('canvas');
   scratch.width = frame.width;
   scratch.height = frame.height;

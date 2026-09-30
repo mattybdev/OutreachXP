@@ -1,5 +1,5 @@
-// Small per-Pip differences derived only from the hatch seed (GDD §4.1 "Uniqueness").
-// Traits never depend on stats, so a Pip keeps its personality as it grows.
+// Small per-Ping differences derived only from the hatch seed (GDD §4.1 "Uniqueness").
+// Traits never depend on stats, so a Ping keeps its personality as it grows.
 
 export function mulberry32(seed: number): () => number {
   let a = seed >>> 0;

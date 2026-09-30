@@ -1,4 +1,4 @@
-// Pip Lab: a tuning page for the procedural Pip generator (GDD §9.4).
+// Ping Lab: a tuning page for the procedural Ping generator (GDD §9.4).
 
 import { roomColors, statAccent } from '../theme';
 import {
@@ -14,10 +14,10 @@ import {
   type Form,
   type LifeStage,
   type Mood,
-  type PipGenome,
+  type PingGenome,
   type Stats,
-} from '../pip/genome';
-import { drawFrame, GROUND, PIP_CANVAS, PIXEL_DENSITY, renderPip, type PipFrame } from '../pip/render';
+} from '../ping/genome';
+import { drawFrame, GROUND, PING_CANVAS, PIXEL_DENSITY, renderPing, type PingFrame } from '../ping/render';
 
 const STAT_LABELS: Record<keyof Stats, string> = {
   intellect: 'Intellect',
@@ -33,10 +33,10 @@ const STAT_CATEGORY: Record<keyof Stats, string> = {
 };
 const MAX_POINTS = 600;
 const STAGE_SCALE = 3;
-const STORAGE_KEY = 'outreachxp.piplab.v1';
+const STORAGE_KEY = 'outreachxp.pinglab.v1';
 
 interface LabState {
-  genome: PipGenome;
+  genome: PingGenome;
   formOverride: Form | 'auto';
   animate: boolean;
   morph: boolean;
@@ -111,7 +111,7 @@ function syncSegmented(hostId: string, value: string): void {
   $(hostId).querySelectorAll('button').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.value === value)));
 }
 
-const PRESETS: { name: string; genome: Partial<PipGenome> & { stats: Stats } }[] = [
+const PRESETS: { name: string; genome: Partial<PingGenome> & { stats: Stats } }[] = [
   { name: 'Fresh hatch', genome: { lifeStage: 'egg', stats: { intellect: 0, craft: 0, heart: 0, authority: 0 } } },
   { name: 'Week 1', genome: { lifeStage: 'baby', stats: { intellect: 12, craft: 8, heart: 5, authority: 3 } } },
   { name: 'Academia lead', genome: { lifeStage: 'teen', stats: { intellect: 260, craft: 60, heart: 50, authority: 30 } } },
@@ -257,7 +257,7 @@ let lastTime = performance.now();
 const startTime = lastTime;
 let frozenTime = 0;
 let lastKey = '';
-let lastFrame: PipFrame | null = null;
+let lastFrame: PingFrame | null = null;
 
 function tick(now: number): void {
   const dt = Math.min(0.1, (now - lastTime) / 1000);
@@ -271,12 +271,12 @@ function tick(now: number): void {
   }
   const time = state.animate ? (now - startTime) / 1000 : frozenTime;
   if (state.animate) frozenTime = time;
-  const genome: PipGenome = { ...state.genome, stats: { ...shown }, form: currentForm(state.genome.stats) };
+  const genome: PingGenome = { ...state.genome, stats: { ...shown }, form: currentForm(state.genome.stats) };
   // Animation runs at 10 fps, so only regenerate when something visible changed.
   const key = JSON.stringify([genome, Math.floor(time * 10), state.dither, state.room]);
   if (key !== lastKey) {
     lastKey = key;
-    lastFrame = renderPip(genome, { time, dither: state.dither });
+    lastFrame = renderPing(genome, { time, dither: state.dither });
   }
   const frame = lastFrame!;
   paintRoom(ctx, STAGE_SCALE, state.room);
@@ -285,7 +285,7 @@ function tick(now: number): void {
 }
 
 function paintRoom(c: CanvasRenderingContext2D, scale: number, room: boolean): void {
-  const size = PIP_CANVAS * scale;
+  const size = PING_CANVAS * scale;
   c.clearRect(0, 0, size, size);
   if (!room) {
     c.fillStyle = '#ffffff';
@@ -297,10 +297,10 @@ function paintRoom(c: CanvasRenderingContext2D, scale: number, room: boolean): v
   const step = 6 * PIXEL_DENSITY;
   c.fillStyle = roomColors.wallDot;
   for (let y = 2 * PIXEL_DENSITY, row = 0; y < GROUND; y += step, row++) {
-    for (let x = row % 2 ? step / 2 : 1; x < PIP_CANVAS; x += step) c.fillRect(x * scale, y * scale, scale, scale);
+    for (let x = row % 2 ? step / 2 : 1; x < PING_CANVAS; x += step) c.fillRect(x * scale, y * scale, scale, scale);
   }
   c.fillStyle = roomColors.floor;
-  c.fillRect(0, GROUND * scale, size, (PIP_CANVAS - GROUND) * scale);
+  c.fillRect(0, GROUND * scale, size, (PING_CANVAS - GROUND) * scale);
   c.fillStyle = roomColors.floorLine;
   c.fillRect(0, GROUND * scale, size, PIXEL_DENSITY * scale);
 }
@@ -317,15 +317,15 @@ function renderVariety(): void {
   grid.innerHTML = '';
   for (const item of varietySeeds) {
     const stats = state.varietyMode === 'seeds' ? state.genome.stats : item.stats;
-    const genome: PipGenome = { seed: item.seed, lifeStage: state.genome.lifeStage, mood: state.genome.mood, stats: { ...stats } };
+    const genome: PingGenome = { seed: item.seed, lifeStage: state.genome.lifeStage, mood: state.genome.mood, stats: { ...stats } };
     const lifeStage = genome.lifeStage;
     const button = document.createElement('button');
     button.type = 'button';
     const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = PIP_CANVAS;
+    canvas.width = canvas.height = PING_CANVAS;
     const c = canvas.getContext('2d')!;
     paintRoom(c, 1, state.room);
-    drawFrame(c, renderPip(genome, { dither: state.dither }), 1);
+    drawFrame(c, renderPing(genome, { dither: state.dither }), 1);
     const label = document.createElement('span');
     label.textContent = `${FORM_NAMES[resolveForm(stats, lifeStage)]} · #${item.seed}`;
     button.append(canvas, label);
@@ -343,31 +343,31 @@ function renderVariety(): void {
 
 // ─── Export ────────────────────────────────────────────────────────────────
 
-function currentGenome(): PipGenome {
+function currentGenome(): PingGenome {
   return { ...state.genome, stats: { ...state.genome.stats }, form: currentForm(state.genome.stats) };
 }
 
 function exportPng(): void {
   const scale = 4;
   const canvas = document.createElement('canvas');
-  canvas.width = canvas.height = PIP_CANVAS * scale;
+  canvas.width = canvas.height = PING_CANVAS * scale;
   const c = canvas.getContext('2d')!;
   if (state.room) paintRoom(c, scale, true);
-  drawFrame(c, renderPip(currentGenome(), { time: frozenTime, dither: state.dither }), scale);
-  download(canvas, `pip-${state.genome.seed}.png`);
+  drawFrame(c, renderPing(currentGenome(), { time: frozenTime, dither: state.dither }), scale);
+  download(canvas, `ping-${state.genome.seed}.png`);
 }
 
 function exportSheet(): void {
   const scale = 2, frames = 20;
   const canvas = document.createElement('canvas');
-  canvas.width = PIP_CANVAS * scale * frames;
-  canvas.height = PIP_CANVAS * scale;
+  canvas.width = PING_CANVAS * scale * frames;
+  canvas.height = PING_CANVAS * scale;
   const c = canvas.getContext('2d')!;
   for (let i = 0; i < frames; i++) {
-    drawFrame(c, renderPip(currentGenome(), { time: i / 10, dither: state.dither }), scale, i * PIP_CANVAS * scale, 0);
+    drawFrame(c, renderPing(currentGenome(), { time: i / 10, dither: state.dither }), scale, i * PING_CANVAS * scale, 0);
   }
-  download(canvas, `pip-${state.genome.seed}-sheet.png`);
-  toast(`Sprite sheet: ${frames} frames at 10 fps, ${PIP_CANVAS * scale}px each.`);
+  download(canvas, `ping-${state.genome.seed}-sheet.png`);
+  toast(`Sprite sheet: ${frames} frames at 10 fps, ${PING_CANVAS * scale}px each.`);
 }
 
 async function copyGenome(): Promise<void> {

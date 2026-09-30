@@ -1,6 +1,6 @@
-// Dev helper: minimal PNG encoder for rendering Pip frames outside the browser.
+// Dev helper: minimal PNG encoder for rendering Ping frames outside the browser.
 import { deflateSync } from 'node:zlib';
-import type { PipFrame } from '../src/pip/render';
+import type { PingFrame } from '../src/ping/render';
 
 export function png(width: number, height: number, rgba: Uint8Array): Buffer {
   const crcTable = Array.from({ length: 256 }, (_, n) => {
@@ -28,7 +28,7 @@ export function png(width: number, height: number, rgba: Uint8Array): Buffer {
 }
 
 /** Lay frames out in a grid on the room-wall colour and encode as PNG. */
-export function encodeSheet(rows: PipFrame[][], scale: number, background = [242, 242, 242, 255]): Buffer {
+export function encodeSheet(rows: PingFrame[][], scale: number, background = [242, 242, 242, 255]): Buffer {
   const cell = rows[0][0].width * scale;
   const cols = Math.max(...rows.map((r) => r.length));
   const W = cols * cell, H = rows.length * cell;

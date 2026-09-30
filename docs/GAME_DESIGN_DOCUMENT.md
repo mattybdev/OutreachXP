@@ -1,8 +1,11 @@
 # OutreachXP: Game Design Document
 
-**Version:** 0.3.1
+**Version:** 0.3.2
 **Date:** 2026-09-30
-**Status:** Approved for build. Implementation has started with the Pip generator and Pip Lab (§12).
+**Status:** Approved for build. Implementation has started with the Ping generator and Ping Lab (§12).
+
+### Changes in v0.3.2
+- The creature is renamed from Pip to **Ping** (you "ping" people with outreach). Forms follow the same pattern, such as Scholar Ping and Envoy Ping. Players still name their own Ping when it hatches.
 
 ### Changes in v0.3.1
 - All open questions from v0.3 are resolved (§14).
@@ -12,9 +15,9 @@
 | Area | Change |
 |---|---|
 | Government stat | Now **Authority** 🛡️, shown as a sturdier **stance, badge and shield**. Influence and wings were removed. |
-| Logo | The logo is **not used literally** anywhere, because it will change. Pip keeps the brand *colors and fonts* but no logo shapes, and all brand values live in one swappable theme file (§9.6). |
-| Pip's art | **Procedurally generated** from its stats and a hatch seed. There are no hand-drawn sprite sheets, and growth is continuous (§9.4). Added a *Pip Lab* tuning page. |
-| Seasons | Pip **starts over** each season. Each past season is saved in full, and a new **Season Comparison** screen compares years side by side (§6.6). |
+| Logo | The logo is **not used literally** anywhere, because it will change. Ping keeps the brand *colors and fonts* but no logo shapes, and all brand values live in one swappable theme file (§9.6). |
+| Ping's art | **Procedurally generated** from its stats and a hatch seed. There are no hand-drawn sprite sheets, and growth is continuous (§9.4). Added a *Ping Lab* tuning page. |
+| Seasons | Ping **starts over** each season. Each past season is saved in full, and a new **Season Comparison** screen compares years side by side (§6.6). |
 | Accent colors | The four stat accent colors are **approved**. |
 | Hosting | **GitHub Pages** is confirmed, deployed with GitHub Actions (§11.1). |
 
@@ -24,7 +27,7 @@
 | Categories | Now **Academia, Industry, Organizations, Government**. Media/Students and Sponsors/Partners were dropped. |
 | Stats | Now 4 stats: **Intellect, Craft, Heart, Influence**. Influence (Government) grows **wings** that echo the SGS&C logo. |
 | Art | Rebuilt around the **SGS&C Style Guide**: brand palette, Open Sans / Open Sans Condensed, and the brand's button and link styles (§9). |
-| Stakes | Confirmed: Pip **never dies**. |
+| Stakes | Confirmed: Ping **never dies**. |
 | Players | Confirmed: **solo** (only the lead) for now. Committee mode moved to "Future". |
 | Seasons | Showcase dates and phases are **configured by the player each year**. Added a season setup screen and a new-season rollover (§6.5). |
 | Economy | Real outreach results now make up **about two-thirds of XP**. Quests are a smaller boost, and a full day of quests adds a *Momentum* bonus to real results (§3, §6, §10). |
@@ -34,7 +37,7 @@
 ## 1. Overview
 
 ### 1.1 Elevator pitch
-OutreachXP is a browser-based virtual pet game in the spirit of Tamagotchi. You look after **Pip**, a small pixel-art creature that lives off your outreach work for the Serious Games Showcase & Challenge (SGS&C). Every email you send feeds Pip. Every reply, CC and submission commitment helps it grow. The kind of people you contact decides how it grows: reaching academia makes its brain bigger, reaching industry builds its arms, reaching organizations grows its heart, and reaching government gives it a sturdy stance, an official badge and eventually a shield. Over a season Pip changes into a creature that shows the shape of your outreach.
+OutreachXP is a browser-based virtual pet game in the spirit of Tamagotchi. You look after **Ping**, a small pixel-art creature that lives off your outreach work for the Serious Games Showcase & Challenge (SGS&C). Every email you send feeds Ping. Every reply, CC and submission commitment helps it grow. The kind of people you contact decides how it grows: reaching academia makes its brain bigger, reaching industry builds its arms, reaching organizations grows its heart, and reaching government gives it a sturdy stance, an official badge and eventually a shield. Over a season Ping changes into a creature that shows the shape of your outreach.
 
 ### 1.2 Purpose
 The game exists to **motivate the outreach subcommittee lead to do more outreach, and to do it consistently**. It does this by:
@@ -52,7 +55,7 @@ The game exists to **motivate the outreach subcommittee lead to do more outreach
 - Reusable every year: the showcase dates are set in-game (§6.5).
 
 ### 1.5 Design pillars
-1. **Cute and rewarding, never guilt-heavy.** Pip gets sleepy or bored when you're away, but it **never dies**.
+1. **Cute and rewarding, never guilt-heavy.** Ping gets sleepy or bored when you're away, but it **never dies**.
 2. **Real results come first.** Replies, commitments and conversions are the biggest rewards. Quests give a boost but never outweigh results.
 3. **Your creature is your outreach, made visible.** Every visual change maps to a real outreach behavior.
 4. **Logging takes seconds.** If logging an email takes more than about 10 seconds, the game fails.
@@ -69,7 +72,7 @@ The game exists to **motivate the outreach subcommittee lead to do more outreach
 Do real outreach  ──►  Log it in-game  ──►  Earn XP + Stat Points
 (send / follow up /      (quick-log form     │
  get reply, etc.)         or pipeline card)   ▼
-                                        Pip reacts, grows, evolves
+                                        Ping reacts, grows, evolves
                                               │
                                               ▼
                               Quests / streaks / achievements progress
@@ -79,8 +82,8 @@ Do real outreach  ──►  Log it in-game  ──►  Earn XP + Stat Points
 ```
 
 **Session types:**
-- **Micro session (about 30 seconds):** open the app, log a sent email or a reply, watch Pip react, close.
-- **Daily check-in (2–3 minutes):** review daily quests, clear follow-up reminders, feed Pip.
+- **Micro session (about 30 seconds):** open the app, log a sent email or a reply, watch Ping react, close.
+- **Daily check-in (2–3 minutes):** review daily quests, clear follow-up reminders, feed Ping.
 - **Weekly review (5–10 minutes):** check the weekly summary, collect weekly quest rewards, look at the stat balance and plan next week's targets.
 
 ---
@@ -98,7 +101,7 @@ Each outreach is tracked as a **Contact Thread**, one card per person reached. A
 | **Organizations** | Nonprofits, professional associations, museums, libraries, community groups | **Heart** 💗 | Heart |
 | **Government** | Federal, state and local agencies, military training commands, public health departments, national labs, elected officials' offices | **Authority** 🛡️ | Stance, badge & shield |
 
-**Why Authority for Government:** government contacts bring credibility and official backing, through agency programs, training commands, policy groups and funding. Pip shows this by *standing taller*: its legs and posture get sturdier, and it earns an official badge, then a sash, then a shield.
+**Why Authority for Government:** government contacts bring credibility and official backing, through agency programs, training commands, policy groups and funding. Ping shows this by *standing taller*: its legs and posture get sturdier, and it earns an official badge, then a sash, then a shield.
 
 **Categorization rule of thumb:** pick the category by *what the contact's organization is*, not by its funding.
 - Public universities go under **Academia**.
@@ -141,17 +144,17 @@ The game can't check your inbox in v1, so logging is on the honor system. To kee
 
 ---
 
-## 4. Pip: The Creature
+## 4. Ping: The Creature
 
 ### 4.1 Concept (brand-aligned)
-Pip is a round, cheerful pixel creature drawn in the SGS&C brand **colors**, but it borrows **no logo shapes**, so it stays valid after the planned logo change:
+Ping is a round, cheerful pixel creature drawn in the SGS&C brand **colors**, but it borrows **no logo shapes**, so it stays valid after the planned logo change:
 - **Body:** a soft charcoal blob (`#232323` body, `#000000` outline) with small rounded ears.
 - **Face:** big white eyes with black pupils, and small **brand-orange** (`#FF5B23`) cheek pixels.
 - **Mark:** a small orange **envelope-seal** belly mark. It is the game's own symbol, not the showcase logo.
-- **Hatching:** Pip hatches from an **Envelope Egg**, a white pixel envelope with an orange wax seal. The egg cracks when you log your first send.
-- **Uniqueness:** each Pip gets a random **seed** when it hatches. The seed sets small details (ear shape, eye shape, freckle pattern, an idle quirk), so every season's Pip looks a little different even with similar stats.
+- **Hatching:** Ping hatches from an **Envelope Egg**, a white pixel envelope with an orange wax seal. The egg cracks when you log your first send.
+- **Uniqueness:** each Ping gets a random **seed** when it hatches. The seed sets small details (ear shape, eye shape, freckle pattern, an idle quirk), so every season's Ping looks a little different even with similar stats.
 
-The player names Pip when it hatches. Pip's whole appearance is **generated in code** from its stats, life stage, form and seed (§9.4).
+The player names Ping when it hatches. Ping's whole appearance is **generated in code** from its stats, life stage, form and seed (§9.4).
 
 ### 4.2 Stats → body parts (visual growth)
 
@@ -182,16 +185,16 @@ A life stage *caps* how far body parts can show. A Baby with lots of Intellect p
 
 ### 4.4 Evolution forms (driven by stat balance)
 
-At Teen and Adult, Pip takes a **form** based on its stat distribution. The checks run in this order:
+At Teen and Adult, Ping takes a **form** based on its stat distribution. The checks run in this order:
 
 | Condition | Form | Look |
 |---|---|---|
-| All 4 stats between 15% and 35% of the total | **Polymath Pip** (rare) | Balanced parts, an orange-and-white prismatic outline, and a small crest showing all four stat icons |
+| All 4 stats between 15% and 35% of the total | **Polymath Ping** (rare) | Balanced parts, an orange-and-white prismatic outline, and a small crest showing all four stat icons |
 | One stat ≥ 40% of the total | Pure form (below) | |
-| • Intellect | **Scholar Pip** | Big brain, robe, glasses |
-| • Craft | **Forge Pip** | Strong arms, apron, spark effects |
-| • Heart | **Kindred Pip** | Big heart, companion sprites |
-| • Authority | **Envoy Pip** | Tall stance, sash, shield, laurel |
+| • Intellect | **Scholar Ping** | Big brain, robe, glasses |
+| • Craft | **Forge Ping** | Strong arms, apron, spark effects |
+| • Heart | **Kindred Ping** | Big heart, companion sprites |
+| • Authority | **Envoy Ping** | Tall stance, sash, shield, laurel |
 | Top two stats each ≥ 30% | **Hybrid form** | Blends both themes |
 | Otherwise | Pure form of the highest stat | |
 
@@ -208,35 +211,35 @@ At Teen and Adult, Pip takes a **form** based on its stat distribution. The chec
 
 ### 4.5 Care meters (the Tamagotchi layer)
 
-Three light meters, shown as pixel icons, give Pip moment-to-moment needs.
+Three light meters, shown as pixel icons, give Ping moment-to-moment needs.
 
 | Meter | Filled by | Drains | Low-state effect |
 |---|---|---|---|
-| **Fullness** 📨 | Sending emails and follow-ups ("feeding") | About 30% per day | Pip looks hungry and nibbles on an empty envelope |
-| **Joy** 😊 | Replies, engagement, CCs, referrals | About 15% per day | Pip is droopy with a small raincloud |
-| **Energy** ⚡ | Checking in, finishing daily quests, clearing follow-up reminders | About 20% per day | Pip yawns and naps more |
+| **Fullness** 📨 | Sending emails and follow-ups ("feeding") | About 30% per day | Ping looks hungry and nibbles on an empty envelope |
+| **Joy** 😊 | Replies, engagement, CCs, referrals | About 15% per day | Ping is droopy with a small raincloud |
+| **Energy** ⚡ | Checking in, finishing daily quests, clearing follow-up reminders | About 20% per day | Ping yawns and naps more |
 
 **Rules:**
-- **Pip never dies**, and meters never cause permanent loss.
-- If all meters stay at 0 for 7+ days, Pip goes into **Hibernation** (it curls up inside its envelope). One logged send wakes it up with a "welcome back" animation and a small bonus.
-- Pip's mood changes its idle animations and dialogue lines, not your XP.
+- **Ping never dies**, and meters never cause permanent loss.
+- If all meters stay at 0 for 7+ days, Ping goes into **Hibernation** (it curls up inside its envelope). One logged send wakes it up with a "welcome back" animation and a small bonus.
+- Ping's mood changes its idle animations and dialogue lines, not your XP.
 - Meters pause on days turned off in settings (e.g. weekends or holidays).
 
 ### 4.6 Interactions and personality
-- **Tap or click Pip:** it reacts (giggle, bounce, a stat-flavored line such as "Professors love a concrete deadline!").
+- **Tap or click Ping:** it reacts (giggle, bounce, a stat-flavored line such as "Professors love a concrete deadline!").
 - **Reactions to logged events:**
-  - Sent: Pip throws a paper airplane.
-  - Reply: Pip catches an envelope.
+  - Sent: Ping throws a paper airplane.
+  - Reply: Ping catches an envelope.
   - Committed: happy dance.
   - Converted: orange confetti and a fanfare.
-- **Tips:** Pip sometimes offers outreach tips, such as follow-up reminders or a nudge toward the stat it is lowest in.
+- **Tips:** Ping sometimes offers outreach tips, such as follow-up reminders or a nudge toward the stat it is lowest in.
 
 ---
 
 ## 5. Progression
 
 ### 5.1 Player level
-- A single XP pool drives the **player Level** and Pip's life stage.
+- A single XP pool drives the **player Level** and Ping's life stage.
 - Curve: `XP to next level = 80 × level^1.4`, rounded.
   - Examples: L1→2 = 80, L5→6 ≈ 760, L10→11 ≈ 2,010, L15→16 ≈ 3,540.
   - Cumulative XP: L5 ≈ 1,200, L10 ≈ 7,400, L15 ≈ 20,400.
@@ -249,7 +252,7 @@ Intern Liaison (1) → Outreach Rookie (3) → Connector (5) → Networker (8) �
 ### 5.3 Cosmetics (optional rewards)
 - **Hats and accessories**, such as a lanyard or a judge's badge.
 - **Room backgrounds:** office, campus quad, expo hall, capitol steps, conference booth.
-- **Palette variants**, which always stay on-brand (e.g. an inverted white Pip).
+- **Palette variants**, which always stay on-brand (e.g. an inverted white Ping).
 
 Cosmetics are unlocked through achievements and monthly or seasonal quests. They are purely cosmetic and give no power.
 
@@ -281,7 +284,7 @@ Quests refresh on a schedule. The player sees 3 daily, 3 weekly and 2 monthly qu
 | Conversation Starter | Get 3 replies | 60 XP |
 | Door Opener | Get 1 referral or CC | 50 XP |
 | Pipeline Pusher | Move 5 threads forward a stage | 60 XP |
-| Category Focus: *[X]* | Send 5 emails to the category Pip is lowest in | 75 XP + 5 bonus stat points |
+| Category Focus: *[X]* | Send 5 emails to the category Ping is lowest in | 75 XP + 5 bonus stat points |
 | Consistency | Log outreach on 4 of 7 days | 60 XP + a Streak Shield (once per month) |
 
 ### 6.3 Monthly quests (pick 2; reset on the 1st)
@@ -330,8 +333,8 @@ The game is built to be reused for every SGS&C cycle. Everything tied to dates i
 **Home screen countdown:** the next key date is always visible, e.g. "⏳ 42 days to Submission Deadline".
 
 **New season rollover (proposed):**
-- The current Pip **graduates** into the **Hall of Pips**, a gallery of past seasons. Each entry has a "Season Yearbook" card showing its final form, stats, funnel and top achievements.
-  - Because Pip is procedurally generated, only its *genome* (seed, stats, form and life stage) needs saving. Any past Pip can be redrawn exactly, at any size.
+- The current Ping **graduates** into the **Hall of Pings**, a gallery of past seasons. Each entry has a "Season Yearbook" card showing its final form, stats, funnel and top achievements.
+  - Because Ping is procedurally generated, only its *genome* (seed, stats, form and life stage) needs saving. Any past Ping can be redrawn exactly, at any size.
 - A new Envelope Egg hatches, and **level and stats reset** for the new season.
 - **Nothing from the old season is deleted.** Its events, threads and summary stay stored so seasons can be compared (§6.6).
 - **Carried over:** contacts and organizations (marked as past contacts, eligible for the *Returning Friend* bonus), lifetime achievements, cosmetics, and a lifetime **Lead Rank** that sums up all seasons.
@@ -350,7 +353,7 @@ A dedicated screen compares any two or more seasons side by side.
 | New organizations reached | 54 | 71 |
 | Category mix (A / I / O / G) | 45 / 30 / 15 / 10% | 35 / 30 / 20 / 15% |
 | Longest streak, active days | 38 | 52 |
-| Final level and form | L16 Scholar Pip | L18 Mentor Pip |
+| Final level and form | L16 Scholar Ping | L18 Mentor Ping |
 
 **Charts:**
 - **Cumulative outreach and results over the season**, with one line per season.
@@ -359,7 +362,7 @@ A dedicated screen compares any two or more seasons side by side.
 - **Category mix** for each season, using the stat accent colors.
 
 **Also on this screen:**
-- **Pip line-up:** each season's final Pip, redrawn from its saved genome and placed side by side.
+- **Ping line-up:** each season's final Ping, redrawn from its saved genome and placed side by side.
 - **Personal bests:** "Best reply rate: 2027", "Most conversions: 2027", and so on.
 - **Pace check during a live season:** "You're 12 sends ahead of last year at this point before the deadline."
 - **Export:** each season's summary can be exported as CSV, in addition to the full JSON backup.
@@ -373,7 +376,7 @@ Achievements are permanent, lifetime badges shown in a **Trophy Case** as pixel 
 ### 7.1 Milestone achievements
 | Achievement | Condition |
 |---|---|
-| Hatchling | Log your first outreach (Pip hatches) |
+| Hatchling | Log your first outreach (Ping hatches) |
 | Pen Pal | 10 emails sent |
 | Postmaster | 100 emails sent |
 | Mail Mountain | 500 emails sent |
@@ -395,7 +398,7 @@ Achievements are permanent, lifetime badges shown in a **Trophy Case** as pixel 
 | Well-Rounded | Every stat at Tier 2 or above |
 | Polymath | Unlock the Polymath form |
 | Streak: Week / Month / Season | 5 / 20 / 60 active-day streak |
-| Comeback Kid | Wake Pip from hibernation and then hit a 5-day streak |
+| Comeback Kid | Wake Ping from hibernation and then hit a 5-day streak |
 | Alumni Network | Win back a Returning Friend from a previous season |
 | Veteran Lead | Complete 2 / 3 / 5 seasons |
 
@@ -411,7 +414,7 @@ Achievements are permanent, lifetime badges shown in a **Trophy Case** as pixel 
 Surprises, for example:
 - **Night Owl:** log outreach at 2am.
 - **Double Feature:** two conversions in one day.
-- **Pet Whisperer:** tap Pip 100 times.
+- **Pet Whisperer:** tap Ping 100 times.
 - **Deadline Hero:** log a conversion on the submission deadline day.
 
 ---
@@ -419,7 +422,7 @@ Surprises, for example:
 ## 8. User Interface and Screens
 
 ### 8.1 Screen list
-1. **Home / Pip's Room:** the creature, care meters, the level bar, a streak flame, the season countdown and a big **"+ LOG OUTREACH"** primary button.
+1. **Home / Ping's Room:** the creature, care meters, the level bar, a streak flame, the season countdown and a big **"+ LOG OUTREACH"** primary button.
 2. **Quick Log (modal):** two taps plus a short text field.
    - Choose: *New thread* or *Update existing thread*.
    - **New:** name and organization (with autocomplete), a category chip (Academia / Industry / Organizations / Government), a *personalized* checkbox, and an optional note.
@@ -432,14 +435,14 @@ Surprises, for example:
    - XP history.
    - An outreach funnel (Sent → Replied → Committed → Converted).
    - A per-category breakdown.
-   - An evolution timeline ("Pip earned its shield on Oct 14!").
-7. **Season:** the season setup and editor (dates and phases), the current phase, the Hall of Pips and **Season Comparison** (§6.6).
+   - An evolution timeline ("Ping earned its shield on Oct 14!").
+7. **Season:** the season setup and editor (dates and phases), the current phase, the Hall of Pings and **Season Comparison** (§6.6).
 8. **Settings:** active days, holidays, follow-up window, sound, data export/import and reset.
 
 ### 8.2 Feedback and juice
 - Floating "+40 XP" pixel text in brand orange, with stat icons flying into the matching body part.
 - An orange screen flash and a chiptune jingle on level-up and evolution. Sound is off by default.
-- **Evolution cutscene:** Pip turns into a silhouette, sparkles, then is revealed with a "Pip evolved into Envoy Pip!" card that can be screenshotted and shared.
+- **Evolution cutscene:** Ping turns into a silhouette, sparkles, then is revealed with a "Ping evolved into Envoy Ping!" card that can be screenshotted and shared.
 
 ### 8.3 Wireframe (home, mobile)
 ```
@@ -449,7 +452,7 @@ Surprises, for example:
 │ ⏳ 42 days to Submission Dl. │
 ├──────────────────────────────┤  ← white panel
 │                              │
-│      (procedural Pip)        │  ← pixel room background
+│      (procedural Ping)        │  ← pixel room background
 │     brain • arms • ♥ • badge │
 │                              │
 │  📨 ████░  😊 ███░░  ⚡ ██░░░ │
@@ -471,16 +474,16 @@ Surprises, for example:
 
 The game follows the **SGS&C Style Guide**. There are two layers:
 - **Brand UI:** clean, condensed type, black/charcoal and orange, taken straight from the guide.
-- **Pixel world:** Pip and its room, drawn in pixel art with a palette derived from the brand colors.
+- **Pixel world:** Ping and its room, drawn in pixel art with a palette derived from the brand colors.
 
 ### 9.1 Brand tokens (from the Style Guide)
 
 | Token | Hex | Guide role | Use in OutreachXP |
 |---|---|---|---|
-| `--sg-orange` | `#FF5B23` | Logo | Primary accent: H1, XP, hover states, links, Pip's cheeks and seal mark |
-| `--sg-black` | `#000000` | Logo | Pip's outline, pixel shadows |
+| `--sg-orange` | `#FF5B23` | Logo | Primary accent: H1, XP, hover states, links, Ping's cheeks and seal mark |
+| `--sg-black` | `#000000` | Logo | Ping's outline, pixel shadows |
 | `--sg-white` | `#FFFFFF` | Background | Page and panel background |
-| `--sg-charcoal` | `#232323` | Text | Body text, H2, primary buttons, header bar, Pip's body |
+| `--sg-charcoal` | `#232323` | Text | Body text, H2, primary buttons, header bar, Ping's body |
 | `--sg-gray` | `#A3A1A8` | Text (secondary) | Secondary labels, disabled states, empty meter tracks |
 | `--sg-orange-light` | `#FF8A63`* | Hyperlink hover | Link hover, lighter pixel highlights |
 
@@ -506,21 +509,21 @@ The game follows the **SGS&C Style Guide**. There are two layers:
 | Secondary button | White background, `#232323` text | `#FF5B23` background, white text |
 | Hyperlink | `#FF5B23` | `#FF8A63` |
 
-- The pixel theme appears in the UI as square corners, a subtle drop shadow (like the guide's buttons), and an optional 2px pixel border on the Pip panel.
+- The pixel theme appears in the UI as square corners, a subtle drop shadow (like the guide's buttons), and an optional 2px pixel border on the Ping panel.
 
 **Accessibility notes**
 - `#A3A1A8` on white has a contrast ratio of about 2.6:1, which is below the WCAG minimum for body text. We'll use it only for large or non-essential text, and use a darker gray (`#6E6C73`) for small secondary text.
 - White on `#FF5B23` is about 3.1:1, which is fine for bold button text of 19px or larger, as in the guide.
 
 ### 9.2 Pixel palette (brand-derived)
-Pip and the world use only these colors, so the art always looks like SGS&C:
+Ping and the world use only these colors, so the art always looks like SGS&C:
 
 - **Orange ramp:** `#8A2A0B` · `#C9401A` · **`#FF5B23`** · `#FF8A63` · `#FFC4AE`
 - **Neutral ramp:** **`#000000`** · `#141414` · **`#232323`** · `#2D2C31` · `#3A393E` · `#6E6C73` · **`#A3A1A8`** · `#D6D5D9` · `#F2F2F2` · **`#FFFFFF`**
 
 Values in **bold** are from the style guide.
 
-**Stat accent colors (approved).** These are used sparingly in the UI (stat bars, icons, the stats chart) and as small glows on Pip's parts at high tiers. They are muted so orange stays the dominant color:
+**Stat accent colors (approved).** These are used sparingly in the UI (stat bars, icons, the stats chart) and as small glows on Ping's parts at high tiers. They are muted so orange stays the dominant color:
 
 | Stat | Accent |
 |---|---|
@@ -531,16 +534,16 @@ Values in **bold** are from the style guide.
 
 ### 9.3 Pixel style
 - **Look:** cute and rounded, with big expressive eyes and a bouncy squash-and-stretch idle. The mostly black body with orange accents keeps it bold and recognizable at small sizes.
-- **Resolution:** Pip is generated on a 128×128 pixel grid (the body is at most about 96 px tall, smaller for early stages) and scaled up with nearest-neighbor filtering (×2–×4). This gives a detailed "late-console" pixel look rather than chunky 8-bit pixels.
+- **Resolution:** Ping is generated on a 128×128 pixel grid (the body is at most about 96 px tall, smaller for early stages) and scaled up with nearest-neighbor filtering (×2–×4). This gives a detailed "late-console" pixel look rather than chunky 8-bit pixels.
 - **Room:** a light gray (`#F2F2F2`) pixel room with a subtle texture, like the guide's page background, and a charcoal floor line. Cosmetic backgrounds follow the same palette.
 
-### 9.4 Procedural generation of Pip
+### 9.4 Procedural generation of Ping
 
-Pip is **not drawn by hand**. Its image is generated in code, in the browser, from a small description called the **genome**. The same genome always produces the same Pip.
+Ping is **not drawn by hand**. Its image is generated in code, in the browser, from a small description called the **genome**. The same genome always produces the same Ping.
 
 **Genome (inputs)**
 ```ts
-PipGenome {
+PingGenome {
   seed,                       // set at hatch: controls small unique details
   lifeStage,                  // egg, baby, kid, teen, adult, legend
   form,                       // Scholar, Forge, ..., Polymath
@@ -582,20 +585,20 @@ Layer order (back → front):
 - **Growth morphing:** when stats change, the parameters tween from old to new values over about 1 second. You literally watch the brain grow.
 - Frames are cached, and only regenerated when the genome or animation frame changes.
 
-**Rules that keep Pip readable and cute**
+**Rules that keep Ping readable and cute**
 - The head always stays at least 45% of total height (a baby-like proportion).
 - Parts never cover the eyes.
 - The silhouette must still read at 1× scale (128 px canvas).
-- Each part has a size cap so balanced and lopsided Pips both look good.
+- Each part has a size cap so balanced and lopsided Pings both look good.
 
 **Implementation notes (from the first build)**
-- The generator draws on a **128×128** pixel canvas (layout is designed on a 64-unit grid at a pixel density of 2). Pip's body stays within about 96 px, and the extra room holds orbiting items, auras and the plinth. Outlines and fine details stay 1px wide, which keeps the art crisp and detailed; the Lab shows it at 3× on screen.
+- The generator draws on a **128×128** pixel canvas (layout is designed on a 64-unit grid at a pixel density of 2). Ping's body stays within about 96 px, and the extra room holds orbiting items, auras and the plinth. Outlines and fine details stay 1px wide, which keeps the art crisp and detailed; the Lab shows it at 3× on screen.
 - Small hearts use hand-authored **pixel glyphs**, because a sampled heart curve reads as a "V" at small sizes. Large hearts are built from two round lobes over a point. Other parts use shapes.
 - The body uses a 5-step charcoal ramp for smoother shading. Eyes have two catch-lights, and mouths and closed eyes are drawn as smooth 1px curves.
 - The body's highlight step is kept to a tiny specular spot, so the charcoal body doesn't look washed out.
 - Animation is quantized to **10 fps** for a crisp, retro feel.
 
-**Pip Lab (developer and tuning page).** A hidden page with sliders for every stat, life stage, form, seed and mood. It shows a grid of generated Pips, and is used to tune the look and review changes. It can also export a PNG or a sprite sheet for sharing.
+**Ping Lab (developer and tuning page).** A hidden page with sliders for every stat, life stage, form, seed and mood. It shows a grid of generated Pings, and is used to tune the look and review changes. It can also export a PNG or a sprite sheet for sharing.
 
 **Testing:** generator output is deterministic, so automated snapshot tests can catch accidental visual changes.
 
@@ -604,7 +607,7 @@ Idle bob, blink, happy bounce, sad droop, sleep, eat (envelope), paper-airplane 
 
 ### 9.6 Logo and rebranding
 - The SGS&C logo is **not used** in the game for now, because it is planned to change. The title screen uses an **"OutreachXP" wordmark** set in the brand fonts, with the envelope-seal mark.
-- **All brand values live in one theme file:** colors, fonts, the pixel palette ramps and the optional logo image slot. A future rebrand means editing that one file, and Pip's colors update automatically because it is generated from the palette.
+- **All brand values live in one theme file:** colors, fonts, the pixel palette ramps and the optional logo image slot. A future rebrand means editing that one file, and Ping's colors update automatically because it is generated from the palette.
 
 ### 9.7 Audio (optional, v0.3)
 Chiptune sound effects for logging, level-up and evolution. Sound is off by default.
@@ -637,7 +640,7 @@ Chiptune sound effects for logging, level-up and evolution. Sound is off by defa
 - Level 15 around week 13–14 (Adult).
 - Level 25 (Legend) only with a strong season of about 30+ weeks.
 
-A typical showcase season (4–6 months) should end with an Adult Pip.
+A typical showcase season (4–6 months) should end with an Adult Ping.
 
 **Why this is fairer to results:**
 - A single commitment (150) is worth more than a whole week of weekly quests.
@@ -650,7 +653,7 @@ A typical showcase season (4–6 months) should end with an Adult Pip.
 
 ### 11.1 Stack (proposed)
 - **Frontend:** TypeScript + Vite. Either vanilla TypeScript with a small state store, or a lightweight framework (Preact or Svelte).
-- **Rendering:** HTML Canvas for Pip, generated procedurally (§9.4) and scaled with nearest-neighbor filtering, with DOM/CSS for the UI.
+- **Rendering:** HTML Canvas for Ping, generated procedurally (§9.4) and scaled with nearest-neighbor filtering, with DOM/CSS for the UI.
 - **Styling:** the brand tokens from §9.1 in a single theme file, exposed as CSS custom properties (§9.6).
 - **Storage:** IndexedDB for threads, events and game state, with JSON **export/import** for backups and moving between devices.
 - **Hosting:** **GitHub Pages** (confirmed), with no backend. A GitHub Actions workflow builds and deploys the site on every push to the main branch.
@@ -663,7 +666,7 @@ type Stat     = 'intellect' | 'craft' | 'heart' | 'authority';
 
 Season        { id, name, keyDates: {kickoff?, submissionsOpen?, submissionDeadline?,
                 judgingStart?, judgingEnd?, eventStart?, eventEnd?, wrapUpEnd?},
-                phases: Phase[], archivedAt?, finalPip?: PipGenome, summary?: SeasonSummary }
+                phases: Phase[], archivedAt?, finalPing?: PingGenome, summary?: SeasonSummary }
 SeasonSummary { sends, followUps, replies, engaged, ccs, referrals, commitments,
                 conversions, newOrgs, byCategory: Record<Category, Funnel>,
                 weeklySeries[], longestStreak, finalLevel, finalForm }
@@ -676,8 +679,8 @@ OutreachEvent { id, seasonId, threadId, type: Stage | 'followup' | 'cc', xp, sta
                 timestamp, undoneAt? }
 PlayerState   { seasonId, xp, level, stats: Record<Stat, number>,
                 meters: {fullness, joy, energy}, streak, shields, momentumUntil?,
-                form, lifeStage, pipName }
-Lifetime      { leadRank, achievements[], cosmetics[], hallOfPips: SeasonId[] }
+                form, lifeStage, pingName }
+Lifetime      { leadRank, achievements[], cosmetics[], hallOfPings: SeasonId[] }
 Settings      { activeDays, holidays[], weekStart, followUpWindowDays, sound }
 QuestState    { id, templateId, period: 'daily'|'weekly'|'monthly'|'seasonal',
                 progress, goal, claimed, expiresAt }
@@ -693,14 +696,14 @@ QuestState    { id, templateId, period: 'daily'|'weekly'|'monthly'|'seasonal',
 
 ## 12. Scope and Roadmap
 
-### Milestone 0: "Pip Lab" ✅ built
-- Procedural Pip generator (§9.4), theme file (§9.6), Pip Lab page, unit tests and GitHub Pages deployment
+### Milestone 0: "Ping Lab" ✅ built
+- Procedural Ping generator (§9.4), theme file (§9.6), Ping Lab page, unit tests and GitHub Pages deployment
 
-### MVP (v0.1: "Pip Hatches")
+### MVP (v0.1: "Ping Hatches")
 - **Season setup** (name and key dates) and a countdown on the home screen
 - Quick Log (new thread plus stage updates) for all 4 categories
 - XP, levels, 4 stats, care meters, streaks with configurable active days
-- **Procedural Pip generator** with continuous growth for all 4 stats, Egg, Baby and Kid stages, tier details up to T3, and the Pip Lab tuning page
+- **Procedural Ping generator** with continuous growth for all 4 stats, Egg, Baby and Kid stages, tier details up to T3, and the Ping Lab tuning page
 - Daily and weekly quests, Perfect Day and Momentum
 - About 15 achievements
 - Pipeline list view
@@ -708,7 +711,7 @@ QuestState    { id, templateId, period: 'daily'|'weekly'|'monthly'|'seasonal',
 - Local storage plus JSON export/import
 - GitHub Pages deployment through GitHub Actions
 
-### v0.2: "Pip Evolves"
+### v0.2: "Ping Evolves"
 - Teen, Adult and Legend stages; the 4 pure forms plus Polymath
 - Monthly quests, streak shields, follow-up reminders
 - Stats & Journal screen
@@ -716,13 +719,13 @@ QuestState    { id, templateId, period: 'daily'|'weekly'|'monthly'|'seasonal',
 
 ### v0.3: "Showcase Season"
 - Full phase editor and seasonal quests
-- New-season rollover, the Hall of Pips, Season Yearbook cards and **Season Comparison**
+- New-season rollover, the Hall of Pings, Season Yearbook cards and **Season Comparison**
 - The 6 hybrid forms
 - Sound, PWA install and notifications
 
 ### Future / stretch
 - **Email integration** (a Gmail/Outlook add-on or API) to detect sends and replies automatically
-- **Committee mode:** each member has their own Pip in a shared "Committee Habitat", with team quests
+- **Committee mode:** each member has their own Ping in a shared "Committee Habitat", with team quests
 - Template library of outreach emails for each category
 
 ---
@@ -745,7 +748,7 @@ Since the goal is to change behavior, the Journal tracks these for the lead's ow
 |---|---|
 | Hyperlink hover color | Use `#FF8A63`. |
 | Authority visuals | Feet → badge → sash → shield is approved. |
-| Seed uniqueness | Each season's Pip gets small random differences from its seed. |
-| First build step | Build the procedural Pip generator and the Pip Lab first. |
+| Seed uniqueness | Each season's Ping gets small random differences from its seed. |
+| First build step | Build the procedural Ping generator and the Ping Lab first. |
 
 There are no open questions right now. New ones will be added here as the build continues.

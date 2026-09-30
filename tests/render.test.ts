@@ -1,18 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { LIFE_STAGES, MOODS, type PipGenome } from '../src/pip/genome';
-import { PIP_CANVAS, renderPip } from '../src/pip/render';
-import { deriveTraits, mulberry32 } from '../src/pip/traits';
+import { LIFE_STAGES, MOODS, type PingGenome } from '../src/ping/genome';
+import { PING_CANVAS, renderPing } from '../src/ping/render';
+import { deriveTraits, mulberry32 } from '../src/ping/traits';
 
-const genome = (over: Partial<PipGenome> = {}): PipGenome => ({
+const genome = (over: Partial<PingGenome> = {}): PingGenome => ({
   seed: 42,
   lifeStage: 'adult',
   mood: 'neutral',
   stats: { intellect: 150, craft: 90, heart: 70, authority: 40 },
   ...over,
 });
-const key = (g: PipGenome, time = 0) => renderPip(g, { time }).pixels.join(',');
+const key = (g: PingGenome, time = 0) => renderPing(g, { time }).pixels.join(',');
 
-describe('renderPip', () => {
+describe('renderPing', () => {
   it('is deterministic for the same genome and time', () => {
     expect(key(genome(), 1.23)).toBe(key(genome(), 1.23));
   });
@@ -33,14 +33,14 @@ describe('renderPip', () => {
   it('renders every stage and mood for random genomes without leaving the canvas empty', () => {
     const rand = mulberry32(1234);
     for (let i = 0; i < 150; i++) {
-      const g: PipGenome = {
+      const g: PingGenome = {
         seed: Math.floor(rand() * 1e6),
         lifeStage: LIFE_STAGES[i % LIFE_STAGES.length],
         mood: MOODS[i % MOODS.length],
         stats: { intellect: rand() * 600, craft: rand() * 600, heart: rand() * 600, authority: rand() * 600 },
       };
-      const frame = renderPip(g, { time: rand() * 10, dither: i % 2 === 0 });
-      expect(frame.pixels).toHaveLength(PIP_CANVAS * PIP_CANVAS);
+      const frame = renderPing(g, { time: rand() * 10, dither: i % 2 === 0 });
+      expect(frame.pixels).toHaveLength(PING_CANVAS * PING_CANVAS);
       expect(frame.pixels.filter(Boolean).length).toBeGreaterThan(300);
     }
   });
@@ -54,7 +54,7 @@ describe('renderPip', () => {
         lifeStage: 'legend',
         stats: { intellect: rand() * 600, craft: rand() * 600, heart: rand() * 600, authority: rand() * 600 },
       });
-      const pixels = renderPip(g, { time: 0.5 }).pixels;
+      const pixels = renderPing(g, { time: 0.5 }).pixels;
       const whites = pixels.filter((p) => p === '#FFFFFF').length;
       expect(whites).toBeGreaterThan(16);
     }
