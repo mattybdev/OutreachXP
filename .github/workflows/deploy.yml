@@ -1,8 +1,9 @@
 name: Test and deploy to GitHub Pages
 
+# Tests run on every push and PR. Deploys happen only from the repository's
+# default branch, so this keeps working if the default branch is renamed.
 on:
   push:
-    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -27,13 +28,13 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-      - if: github.event_name != 'pull_request'
+      - if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
   deploy:
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
     needs: build
     runs-on: ubuntu-latest
     environment:

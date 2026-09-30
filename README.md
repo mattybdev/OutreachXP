@@ -33,4 +33,4 @@ npm run sheet      # writes pip-sheet.png, a contact sheet of sample Pips
 
 ## Deploy
 
-`.github/workflows/deploy.yml` tests, builds and deploys to GitHub Pages on every push to `main`. One-time setup: in the repository's **Settings → Pages**, set **Source** to **GitHub Actions**.
+`.github/workflows/deploy.yml` runs the tests on every push and deploys to GitHub Pages from the repository's default branch. Do not use the "Static HTML" or "Jekyll" Pages starter workflows: they publish the unbuilt source, which browsers cannot run. One-time setup: in the repository's **Settings → Pages**, set **Source** to **GitHub Actions**.
