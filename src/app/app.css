@@ -267,3 +267,68 @@ details.group[open] summary h2::before { content: '▾'; }
 }
 .quest-list-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 @media (max-width: 820px) { .quest-list-2 { grid-template-columns: minmax(0, 1fr); } }
+
+/* Tabs: icons only appear on phones */
+.tab-icon { display: none; }
+@media (max-width: 820px) {
+  .tabs a { display: grid; justify-items: center; gap: 1px; padding: 8px 1px 10px; font-size: 10px; min-width: 0; }
+  .tab-icon { display: block; font-size: 18px; line-height: 1; }
+  .tab-label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+/* Stats & Journal */
+.stats-view { position: relative; }
+.stat-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 16px 0; }
+.stat-tile { background: var(--sg-white); box-shadow: var(--shadow); padding: 14px 16px; display: grid; gap: 2px; }
+.stat-value { font-stretch: 75%; font-weight: 800; font-size: 40px; line-height: 1; color: var(--sg-charcoal); }
+.stat-value.small { font-size: 30px; }
+.stat-label { font-weight: 700; font-size: 14px; }
+.stats-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 16px; }
+.stats-grid .panel + .panel { margin-top: 0; }
+.stats-view > .panel + .panel, .stats-grid + .panel { margin-top: 16px; }
+.funnel { display: grid; gap: 10px; margin-top: 12px; }
+.funnel-row { display: grid; grid-template-columns: 78px 1fr 70px; align-items: center; gap: 10px; }
+.funnel-label { font-size: 13px; font-weight: 600; }
+.funnel-track { height: 22px; background: var(--sg-surface); display: block; outline-offset: 2px; }
+.funnel-track:focus-visible { outline: 2px solid var(--sg-orange); }
+.funnel-track i { display: block; height: 100%; background: var(--sg-orange); border-radius: 0 4px 4px 0; }
+.funnel-value { font-size: 14px; white-space: nowrap; }
+.week-chart { width: 100%; min-height: 190px; margin-top: 8px; }
+.week-chart svg { display: block; }
+.week-chart .grid { stroke: #e6e5e8; stroke-width: 1; }
+.week-chart .baseline { stroke: var(--sg-gray); }
+.week-chart .tick { font-size: 11px; fill: var(--sg-gray-dark); font-family: var(--font); }
+.week-chart .bar { fill: var(--sg-orange); }
+.week-chart .bar.current { fill: var(--sg-orange-light); }
+.week-chart .hit { fill: transparent; cursor: default; outline: none; }
+.week-chart .hit:hover, .week-chart .hit:focus { fill: rgba(35, 35, 35, 0.05); }
+.chart-tip {
+  position: absolute; z-index: 4; pointer-events: none; opacity: 0; transition: opacity 0.1s;
+  background: var(--sg-charcoal); color: var(--sg-white); font-size: 12px; padding: 6px 8px; max-width: 260px; box-shadow: var(--shadow);
+}
+.chart-tip.show { opacity: 1; }
+.table-view { margin-top: 8px; font-size: 13px; }
+.table-view summary { cursor: pointer; color: var(--sg-orange); }
+.table-wrap { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+.data-table th, .data-table td { text-align: right; padding: 7px 8px; border-bottom: 1px solid var(--sg-line); white-space: nowrap; }
+.data-table th:first-child, .data-table td:first-child { text-align: left; }
+.data-table thead th { font-size: 12px; color: var(--sg-gray-dark); font-weight: 700; }
+.data-table tbody th { font-weight: 600; }
+.cat-name { display: inline-flex; align-items: center; }
+.inline-bar { display: inline-block; width: 60px; height: 8px; background: var(--sg-surface); margin-right: 8px; vertical-align: middle; }
+.inline-bar i { display: block; height: 100%; border-radius: 0 3px 3px 0; }
+.bests { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 8px; }
+.bests > div { display: grid; gap: 2px; }
+.journal { list-style: none; padding: 0; margin: 0 0 8px; border-left: 2px solid var(--sg-line); }
+.journal li { display: grid; grid-template-columns: 56px 26px 1fr; gap: 6px; align-items: start; padding: 6px 0 6px 10px; position: relative; font-size: 14px; }
+.journal li::before { content: ''; position: absolute; left: -5px; top: 12px; width: 8px; height: 8px; background: var(--sg-line); }
+.journal li.journal-growth::before, .journal li.journal-achievement::before { background: var(--sg-orange); }
+.journal-date { color: var(--sg-gray-dark); font-size: 12px; padding-top: 2px; }
+.journal-icon { font-size: 16px; }
+@media (max-width: 820px) {
+  .stat-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stats-grid { grid-template-columns: minmax(0, 1fr); }
+  .stats-grid .panel + .panel { margin-top: 16px; }
+  .bests { grid-template-columns: minmax(0, 1fr); }
+}

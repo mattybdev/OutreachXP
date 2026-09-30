@@ -25,8 +25,8 @@ export const ramps = {
   paper: ['#A3A1A8', '#D6D5D9', '#FFFFFF', '#FFFFFF'],
   // Stat accent ramps (approved accents are the middle value).
   intellect: ['#5E4F8F', '#8E7CC3', '#B7AADD', '#DAD2F0'],
-  craft: ['#3D5670', '#5C7C99', '#86A2BC', '#B5C8DA'],
-  heartAccent: ['#A3304B', '#E0506E', '#F08BA0', '#F8C2CD'],
+  craft: ['#7A5714', '#B7851F', '#D9A94A', '#EACB85'],
+  heartAccent: ['#A3304B', '#D9486A', '#F08BA0', '#F8C2CD'],
   authority: ['#1D6E68', '#2FA39A', '#6CCBC3', '#B0E6E1'],
 } as const;
 
@@ -34,8 +34,8 @@ export type RampName = keyof typeof ramps;
 
 export const statAccent = {
   intellect: '#8E7CC3',
-  craft: '#5C7C99',
-  heart: '#E0506E',
+  craft: '#B7851F',
+  heart: '#D9486A',
   authority: '#2FA39A',
 } as const;
 

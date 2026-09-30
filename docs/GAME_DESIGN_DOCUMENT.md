@@ -540,8 +540,8 @@ Values in **bold** are from the style guide.
 | Stat | Accent |
 |---|---|
 | Intellect | `#8E7CC3` lavender |
-| Craft | `#5C7C99` steel blue |
-| Heart | `#E0506E` rose |
+| Craft | `#B7851F` amber |
+| Heart | `#D9486A` rose |
 | Authority | `#2FA39A` teal |
 
 ### 9.3 Pixel style
@@ -718,6 +718,7 @@ QuestState    { id, templateId, period: 'daily'|'weekly'|'monthly'|'seasonal',
 - Part 2 (Ping comes alive) ✅ built: Fullness/Joy/Energy meters that drain only on active days and set Ping's mood; daily check-ins restore energy; hibernation after 7 active days at zero, with a +20 XP welcome-back bonus; outreach streaks with configurable active days and holidays and the +5%-per-week XP multiplier; reaction animations (paper airplane, falling envelope with hearts, happy dance, confetti, and a sparkle burst for hatching, level-ups and waking).
 - Part 3 (quests and achievements) ✅ built, then re-paced for weekly use in v0.3.3: 3 weekly and 2 monthly quests per period, picked with a seeded shuffle from the §6.1/§6.2 pools (follow-up quests only appear when a follow-up is due); quests complete automatically from logged outreach; Perfect Week (+50 XP) gives Momentum (+10% XP on replies, commitments and conversions) for the next week; Category Focus targets Ping's lowest stat and adds 5 stat points; 22 achievements with unlock dates and progress on the Achievements page, each unlocking a procedurally drawn background (common to legendary); the Quick Log preview shows which quests a log will complete.
 - **The MVP is complete.** Next up is v0.2 (§12).
+- v0.2 progress: **Stats & Journal** ✅ built: headline tiles (contacts emailed, reply rate, commitments, conversions), the outreach funnel with step-to-step rates, outreach per week (column chart with hover details and a table view), personal bests (best week, longest streak, active weeks), a per-category table, and a newest-first journal of milestones (season start, hatching, level-ups, growing up, evolving, Perfect Weeks, achievements). A category filter applies to the tiles, funnel and weekly chart. Category colors were re-validated for colorblind readers: Craft/Industry is now amber `#B7851F` and Heart is `#D9486A`.
 
 **Meter tuning (as built, weekly pace):** start 70/70/70. Drain per active day: Fullness −6, Joy −4, Energy −5 (about −30/−20/−25 per work week), so one outreach session a week keeps Ping content; about two quiet weeks make it sad; hibernation comes after all meters sit at zero for 3 more active days (roughly 4–5 quiet weeks). Refills: send +12 Fullness; follow-up +10 Fullness and +8 Energy; reply or positive reply +15 Joy; CC +5 Joy per person (up to 4); referral +15 Joy; commitment +25 Joy; conversion +35 Joy; closing the loop +3 Joy; daily check-in +30 Energy. Mood: sleepy when hibernating or Energy < 25, sad when Fullness or Joy < 20, happy after outreach today or when Fullness and Joy are both 60+, otherwise neutral.
 

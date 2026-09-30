@@ -16,11 +16,12 @@ import { bindHome, currentGenome, renderHome } from './views/home';
 import { bindPipeline, renderPipeline } from './views/pipeline';
 import { bindQuests, renderQuests } from './views/quests';
 import { bindSeason, renderSeason } from './views/season';
+import { bindStats, renderStats } from './views/stats';
 import { achievements, backgroundFor, bindAchievements, equippedBackground, renderAchievements } from './views/achievements';
 import { PERFECT_WEEK_XP } from '../game/quests';
 
-type Route = 'home' | 'pipeline' | 'quests' | 'achievements' | 'season' | 'data';
-const ROUTES: Route[] = ['home', 'pipeline', 'quests', 'achievements', 'season', 'data'];
+type Route = 'home' | 'pipeline' | 'quests' | 'achievements' | 'stats' | 'season' | 'data';
+const ROUTES: Route[] = ['home', 'pipeline', 'quests', 'achievements', 'stats', 'season', 'data'];
 
 const view = document.getElementById('view')!;
 const dialog = document.getElementById('quicklog') as HTMLDialogElement;
@@ -160,6 +161,10 @@ function render(): void {
       root.innerHTML = renderAchievements(ctx);
       bindAchievements(root, ctx);
       break;
+    case 'stats':
+      root.innerHTML = renderStats(ctx);
+      bindStats(root, render);
+      break;
     case 'season':
       root.innerHTML = renderSeason(ctx);
       bindSeason(root, ctx);
@@ -217,6 +222,12 @@ function checkIn(): void {
 async function boot(): Promise<void> {
   state = await loadState();
   requestPersistence();
+  // Charts are sized to their container, so redraw the Stats view when the window resizes.
+  let resizeTimer = 0;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(() => currentRoute() === 'stats' && !dialog.open && render(), 200);
+  });
   window.addEventListener('hashchange', () => {
     render();
     view.focus({ preventScroll: true });

@@ -4,7 +4,7 @@ A Tamagotchi-style web game that rewards outreach for the Serious Games Showcase
 
 ## Current state
 
-- **The game** (`index.html`): set up a season, log outreach in a few taps, track contacts through the pipeline, and earn XP that levels up and grows **Ping**, your procedurally generated outreach companion. Ping has care meters and moods, streaks reward consistency, and daily/weekly quests and achievements add goals. Each achievement unlocks a new procedurally drawn background for Ping's room. Data stays in the browser (IndexedDB), with JSON export/import.
+- **The game** (`index.html`): set up a season, log outreach in a few taps, track contacts through the pipeline, and earn XP that levels up and grows **Ping**, your procedurally generated outreach companion. Ping has care meters and moods, streaks reward consistency, weekly/monthly quests and achievements add goals, and a Stats & Journal screen shows the outreach funnel, weekly activity and Ping's milestones. Each achievement unlocks a new procedurally drawn background for Ping's room. Data stays in the browser (IndexedDB), with JSON export/import.
 - **Ping Lab** (`lab.html`): a tuning page for the generator, with sliders for every stat, life stage, mood and seed.
 
 ## Develop
