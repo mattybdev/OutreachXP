@@ -333,8 +333,3 @@ details.group[open] summary h2::before { content: '▾'; }
   .bests { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* Ping's look (Season page) */
-.look-panel { display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: center; }
-.look-panel canvas { width: 180px; height: 180px; image-rendering: pixelated; border: 2px solid var(--sg-charcoal); }
-.look-panel h2 { margin-top: 0; }
-@media (max-width: 520px) { .look-panel { grid-template-columns: minmax(0, 1fr); justify-items: start; } }

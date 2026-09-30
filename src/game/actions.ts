@@ -55,17 +55,6 @@ export function createSeason(state: GameState, input: SeasonInput, now = new Dat
   return { ...state, seasons: [...state.seasons, season], currentSeasonId: season.id };
 }
 
-/** A new random look for this season's Ping. Only before the first outreach, because the seed also picks quests. */
-export function rerollPingLook(state: GameState, seasonId: string, seed = Math.floor(Math.random() * 1e6)): GameState {
-  if (state.events.some((e) => e.seasonId === seasonId)) throw new ActionError('Ping’s look is set once the season’s first outreach is logged.');
-  return { ...state, seasons: state.seasons.map((s) => (s.id === seasonId ? { ...s, pingSeed: seed, pingStyle: LATEST_STYLE } : s)) };
-}
-
-/** Move a classic-look Ping to the latest look style. Keeps the seed, so quests don't change. */
-export function upgradePingStyle(state: GameState, seasonId: string): GameState {
-  return { ...state, seasons: state.seasons.map((s) => (s.id === seasonId ? { ...s, pingStyle: LATEST_STYLE } : s)) };
-}
-
 export function updateSeason(state: GameState, seasonId: string, input: SeasonInput): GameState {
   const clean = cleanSeasonInput(input);
   return { ...state, seasons: state.seasons.map((s) => (s.id === seasonId ? { ...s, ...clean } : s)) };

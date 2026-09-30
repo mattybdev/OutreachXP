@@ -5,7 +5,7 @@
 **Status:** Approved for build. Implementation has started with the Ping generator and Ping Lab (§12).
 
 ### Changes in v0.3.4
-- **More unique Pings:** seeds now also choose a coat color, body shape, markings, cheek color and eye color (§4.1). Existing Pings keep their look unless upgraded; a new season's look can be rerolled before its first outreach.
+- **More unique Pings:** seeds now also choose a coat color, body shape, markings, cheek color and eye color (§4.1). The look is a surprise at hatching and can't be changed; Pings hatched before this keep the classic look.
 
 ### Changes in v0.3.3
 - **Re-paced for weekly outreach:** daily quests removed (now 3 weekly + 2 monthly), Perfect Day became **Perfect Week** (+50 XP, Momentum for the next week), streaks count **weeks** (+5% XP per 4 weeks), and Ping's meters drain about 5× slower.
@@ -163,8 +163,8 @@ Ping is a round, cheerful pixel creature drawn in the SGS&C brand **colors**, bu
   - **Body shape:** Round, Pear, Bean, Squat, Egg or Boxy, within limits that keep the head large and the eyes clear.
   - **Markings:** none, a belly patch, spots, a mask around the eyes, or a crown, in a soft two-tone pattern.
   - **Cheek color** (orange, rose or peach), **eye color** (black, deep blue or brown), plus ear shape, eye shape, freckles and an idle quirk.
-  - **Style versions:** each season stores a look *style*. Pings hatched before this variety keep the classic charcoal look, and the Season page offers a one-click upgrade. New seasons hatch with the latest style.
-  - **Try another look:** before the season's first outreach, the player can reroll the seed from the Season page. After that the look is locked, because the seed also picks the season's quests.
+  - **It's a mystery until it hatches.** The look is decided by the seed when the season starts, and the player can't preview or change it; the Envelope Egg hatches into whatever Ping it holds.
+  - **Style versions:** each season stores a look *style*. Pings hatched before this variety keep the classic charcoal look; new seasons hatch with the latest style.
 
 The player names Ping when it hatches. Ping's whole appearance is **generated in code** from its stats, life stage, form and seed (§9.4).
 

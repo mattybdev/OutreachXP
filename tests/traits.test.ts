@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createSeason, logNewOutreach, rerollPingLook, upgradePingStyle } from '../src/game/actions';
+import { createSeason } from '../src/game/actions';
 import { emptyState } from '../src/game/types';
 import { COATS, deriveTraits, LATEST_STYLE, SHAPES } from '../src/ping/traits';
 
@@ -32,22 +32,9 @@ describe('Ping look variety', () => {
   });
 });
 
-describe('season look actions', () => {
-  const at = new Date('2026-10-05T12:00:00');
-  it('new seasons hatch with the latest style; rerolls stop after the first outreach', () => {
-    let s = createSeason(emptyState(), { name: 'S', pingName: 'P', keyDates: {} }, at, 5);
-    const id = s.currentSeasonId!;
+describe('season look', () => {
+  it('new seasons hatch with the latest style', () => {
+    const s = createSeason(emptyState(), { name: 'S', pingName: 'P', keyDates: {} }, new Date('2026-10-05T12:00:00'), 5);
     expect(s.seasons[0].pingStyle).toBe(LATEST_STYLE);
-    s = rerollPingLook(s, id, 77);
-    expect(s.seasons[0].pingSeed).toBe(77);
-    s = logNewOutreach(s, { name: 'A', org: '', category: 'academia', personalized: false, date: '2026-10-05' }, at, '2026-10-05').state;
-    expect(() => rerollPingLook(s, id, 88)).toThrow(/locked|set once/);
-  });
-
-  it('upgrades a classic Ping without changing its seed', () => {
-    let s = createSeason(emptyState(), { name: 'S', pingName: 'P', keyDates: {} }, at, 5);
-    s = { ...s, seasons: s.seasons.map((x) => ({ ...x, pingStyle: 1 })) };
-    const up = upgradePingStyle(s, s.currentSeasonId!);
-    expect(up.seasons[0]).toMatchObject({ pingStyle: LATEST_STYLE, pingSeed: 5 });
   });
 });
