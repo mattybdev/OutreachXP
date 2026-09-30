@@ -132,9 +132,14 @@ export function parseState(raw: unknown): GameState {
     version: 1,
     currentSeasonId: current,
     seasons, contacts, threads, events,
+    checkins: Array.isArray(r.checkins) ? [...new Set((r.checkins as unknown[]).filter(isValidISODate))].sort() : [],
     settings: {
       followUpMinDays: Number.isInteger(min) && min >= 1 && min <= 30 ? min : 3,
       followUpMaxDays: Number.isInteger(max) && max >= 1 && max <= 60 ? max : 7,
+      activeDays: Array.isArray(settings.activeDays)
+        ? [...new Set((settings.activeDays as unknown[]).filter((d): d is number => Number.isInteger(d) && (d as number) >= 0 && (d as number) <= 6))].sort()
+        : [1, 2, 3, 4, 5],
+      holidays: Array.isArray(settings.holidays) ? [...new Set((settings.holidays as unknown[]).filter(isValidISODate))].sort() : [],
     },
   };
 }

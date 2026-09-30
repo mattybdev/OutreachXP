@@ -77,6 +77,10 @@ export interface Settings {
   /** Days after an unanswered send when a follow-up is due, and the end of the speed-bonus window. */
   followUpMinDays: number;
   followUpMaxDays: number;
+  /** Weekdays that count for streaks and meter decay (0 = Sunday … 6 = Saturday). */
+  activeDays: number[];
+  /** Dates off (YYYY-MM-DD): they never break a streak or drain Ping's meters. */
+  holidays: string[];
 }
 
 export interface GameState {
@@ -86,6 +90,8 @@ export interface GameState {
   contacts: Contact[];
   threads: Thread[];
   events: OutreachEvent[];
+  /** Days the player opened the game (YYYY-MM-DD); checking in restores Ping's energy. */
+  checkins: string[];
   settings: Settings;
 }
 
@@ -111,6 +117,7 @@ export function emptyState(): GameState {
     contacts: [],
     threads: [],
     events: [],
-    settings: { followUpMinDays: 3, followUpMaxDays: 7 },
+    checkins: [],
+    settings: { followUpMinDays: 3, followUpMaxDays: 7, activeDays: [1, 2, 3, 4, 5], holidays: [] },
   };
 }

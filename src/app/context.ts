@@ -1,5 +1,6 @@
 // Shared helpers for the game's views: the app context, derived data, and HTML utilities.
 
+import { simulateCare, streakInfo, type CareResult, type StreakInfo } from '../game/care';
 import { daysBetween, todayISO } from '../game/dates';
 import { computeSeason, followUpDue, lastActionDate, threadEvents, threadStatus, type SeasonSummary } from '../game/engine';
 import { KEY_DATE_LABELS } from '../game/rules';
@@ -28,6 +29,19 @@ export function seasonSummary(state: GameState): SeasonSummary | null {
   if (!state.currentSeasonId) return null;
   if (memo?.state !== state) memo = { state, summary: computeSeason(state, state.currentSeasonId) };
   return memo.summary;
+}
+
+let careMemo: { state: GameState; today: string; value: { care: CareResult; streak: StreakInfo } } | null = null;
+/** Ping's meters and the outreach streak as of today. */
+export function careNow(state: GameState, today = todayISO()): { care: CareResult; streak: StreakInfo } | null {
+  if (!state.currentSeasonId) return null;
+  if (careMemo?.state !== state || careMemo.today !== today) {
+    careMemo = {
+      state, today,
+      value: { care: simulateCare(state, state.currentSeasonId, today), streak: streakInfo(state, state.currentSeasonId, today) },
+    };
+  }
+  return careMemo.value;
 }
 
 export interface ThreadView {

@@ -1,9 +1,11 @@
 // Data: backup/restore, settings, and a link to the Ping Lab. All data stays in this browser.
 
-import { todayISO } from '../../game/dates';
+import { formatDate, isValidISODate, todayISO } from '../../game/dates';
 import { parseState } from '../../game/storage';
 import { emptyState } from '../../game/types';
 import { plural, type AppContext } from '../context';
+
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export function renderData(ctx: AppContext): string {
   const { settings, contacts, events, seasons } = ctx.state;
@@ -24,6 +26,20 @@ export function renderData(ctx: AppContext): string {
         <label class="field"><span>On-time bonus until (days)</span><input type="number" name="max" min="1" max="60" value="${settings.followUpMaxDays}" /></label>
         <p class="form-error" role="alert"></p>
         <div><button class="btn btn-secondary" type="submit">Save</button></div>
+      </form>
+    </section>
+    <section class="panel">
+      <h2>Active days and holidays</h2>
+      <p class="body2">Streaks only count your active days, and your Ping’s meters only drain on them. Days off never break a streak.</p>
+      <div class="weekdays" role="group" aria-label="Active days">${WEEKDAYS.map((d, i) => `<label class="check">
+          <input type="checkbox" data-weekday="${i}" ${settings.activeDays.includes(i) ? 'checked' : ''} /> <span>${d}</span></label>`).join('')}</div>
+      <h3>Holidays and time off</h3>
+      ${settings.holidays.length
+        ? `<ul class="holiday-list">${settings.holidays.map((h) => `<li><span>${formatDate(h)}</span><button class="link-button" type="button" data-remove-holiday="${h}">Remove</button></li>`).join('')}</ul>`
+        : '<p class="body2">None yet.</p>'}
+      <form id="holiday-form" class="inline-form" novalidate>
+        <label class="field"><span>Add a day off</span><input type="date" name="holiday" required /></label>
+        <button class="btn btn-secondary" type="submit">Add</button>
       </form>
     </section>
     <section class="panel">
@@ -72,6 +88,31 @@ export function bindData(root: HTMLElement, ctx: AppContext): void {
     }
   });
 
+  root.querySelectorAll<HTMLInputElement>('[data-weekday]').forEach((box) => box.addEventListener('change', () => {
+    const days = [...root.querySelectorAll<HTMLInputElement>('[data-weekday]')].filter((b) => b.checked).map((b) => Number(b.dataset.weekday));
+    if (!days.length) {
+      box.checked = true;
+      ctx.toast('Keep at least one active day.', 'error');
+      return;
+    }
+    ctx.commit({ ...ctx.state, settings: { ...ctx.state.settings, activeDays: days } });
+    ctx.toast('Active days saved.');
+  }));
+  root.addEventListener('click', (e) => {
+    const day = (e.target as HTMLElement).closest<HTMLElement>('[data-remove-holiday]')?.dataset.removeHoliday;
+    if (!day) return;
+    ctx.commit({ ...ctx.state, settings: { ...ctx.state.settings, holidays: ctx.state.settings.holidays.filter((h) => h !== day) } });
+  });
+  const holidayForm = root.querySelector<HTMLFormElement>('#holiday-form')!;
+  holidayForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const day = String(new FormData(holidayForm).get('holiday') ?? '');
+    if (!isValidISODate(day)) return ctx.toast('Pick a date first.', 'error');
+    const holidays = [...new Set([...ctx.state.settings.holidays, day])].sort();
+    ctx.commit({ ...ctx.state, settings: { ...ctx.state.settings, holidays } });
+    ctx.toast(`${formatDate(day)} marked as a day off.`);
+  });
+
   const form = root.querySelector<HTMLFormElement>('#settings-form')!;
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -81,7 +122,7 @@ export function bindData(root: HTMLElement, ctx: AppContext): void {
       form.querySelector('.form-error')!.textContent = 'Use whole days, with the bonus window at least as long as the reminder.';
       return;
     }
-    ctx.commit({ ...ctx.state, settings: { followUpMinDays: min, followUpMaxDays: max } });
+    ctx.commit({ ...ctx.state, settings: { ...ctx.state.settings, followUpMinDays: min, followUpMaxDays: max } });
     ctx.toast('Settings saved.');
   });
 }

@@ -187,3 +187,22 @@ details.group[open] summary h2::before { content: '▾'; }
 }
 
 .panel > h2:first-child, .panel > h1:first-child { margin-top: 0; }
+
+/* Care meters, streaks and hibernation (part 2) */
+.meters { display: grid; gap: 6px; margin: 10px 0 6px; }
+.meter { display: grid; grid-template-columns: 22px 70px 1fr; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; }
+.meter-icon { text-align: center; }
+.meter-bar { height: 10px; background: var(--sg-line); position: relative; }
+.meter-bar i { display: block; height: 100%; background: var(--sg-charcoal); transition: width 0.4s; }
+.meter-low .meter-bar i { background: var(--sg-orange); }
+.meter-low .meter-name { color: var(--sg-orange); }
+.streak { font-size: 14px; margin: 6px 0; }
+.streak .flame { margin-right: 4px; }
+.banner { background: #fff1eb; border-left: 4px solid var(--sg-orange); padding: 8px 10px; font-size: 14px; margin: 8px 0; }
+.at-risk { background: #fff1eb; padding: 8px 10px; font-weight: 600; margin: 0 0 8px; }
+.chip-streak { background: #3a393e; color: var(--sg-white); padding: 2px 6px; margin-right: 6px; font-weight: 800; }
+.weekdays { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.holiday-list { list-style: none; padding: 0; margin: 0 0 8px; }
+.holiday-list li { display: flex; gap: 12px; align-items: baseline; padding: 4px 0; }
+.inline-form { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; }
+.inline-form .field { margin: 0; }

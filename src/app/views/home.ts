@@ -6,7 +6,8 @@ import { EVENT_LABEL, LIMITS, lifeStageForLevel, titleForLevel } from '../../gam
 import { CATEGORY_LABEL, type Category } from '../../game/types';
 import { FORM_NAMES, rawTier, resolveForm, STATS, TIER_THRESHOLDS, type PingGenome } from '../../ping/genome';
 import { statAccent } from '../../theme';
-import { categoryChip, currentSeason, esc, plural, relativeDay, seasonSummary, threadViews, upcomingDates, type AppContext } from '../context';
+import { moodFor, type Meters } from '../../game/care';
+import { careNow, categoryChip, currentSeason, esc, plural, relativeDay, seasonSummary, threadViews, upcomingDates, type AppContext } from '../context';
 
 const STAT_CATEGORY: Record<string, Category> = { intellect: 'academia', craft: 'industry', heart: 'organizations', authority: 'government' };
 const STAT_NAME: Record<string, string> = { intellect: 'Intellect', craft: 'Craft', heart: 'Heart', authority: 'Authority' };
@@ -19,12 +20,42 @@ export function currentGenome(ctx: AppContext): PingGenome | null {
   if (!season || !summary) return null;
   const today = todayISO();
   const activeToday = summary.entries.some((e) => e.event.date === today);
+  const care = careNow(ctx.state, today)!.care;
   return {
     seed: season.pingSeed,
     lifeStage: lifeStageForLevel(summary.level.level),
     stats: { ...summary.stats },
-    mood: activeToday ? 'happy' : 'neutral',
+    mood: summary.hasOutreach ? moodFor(care, activeToday) : 'neutral',
   };
+}
+
+const METERS: { key: keyof Meters; label: string; icon: string; hint: string }[] = [
+  { key: 'fullness', label: 'Fullness', icon: '📨', hint: 'Fed by sending emails and follow-ups' },
+  { key: 'joy', label: 'Joy', icon: '😊', hint: 'Grows with replies, CCs, referrals and commitments' },
+  { key: 'energy', label: 'Energy', icon: '⚡', hint: 'Restored by checking in and following up' },
+];
+
+function renderCare(ctx: AppContext): string {
+  const summary = seasonSummary(ctx.state)!;
+  if (!summary.hasOutreach) return '';
+  const { care, streak } = careNow(ctx.state)!;
+  const name = esc(currentSeason(ctx.state)!.pingName);
+  const meters = METERS.map((m) => {
+    const v = Math.round(care.meters[m.key]);
+    return `<div class="meter ${v < 25 ? 'meter-low' : ''}" title="${m.hint}">
+      <span class="meter-icon" aria-hidden="true">${m.icon}</span>
+      <span class="meter-name">${m.label}</span>
+      <span class="meter-bar" role="meter" aria-label="${m.label}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${v}"><i style="width:${v}%"></i></span>
+    </div>`;
+  }).join('');
+  const bonus = Math.round((streak.multiplier - 1) * 100);
+  const streakLine = streak.current
+    ? `<div class="streak"><span class="flame" aria-hidden="true">🔥</span><strong>${plural(streak.current, 'day')}</strong> outreach streak${bonus ? ` · <span class="xp-gain">+${bonus}% XP</span>` : ` · ${7 - (streak.current % 7)} more for +5% XP`}</div>`
+    : `<div class="streak body2">Log outreach on your active days to start a streak (weekends and holidays don’t count against you).</div>`;
+  const banner = care.hibernating
+    ? `<div class="banner">💤 ${name} is hibernating. Send one email to wake it up, with a <strong>+20 XP</strong> welcome-back bonus.</div>`
+    : '';
+  return `${banner}<div class="meters">${meters}</div>${streakLine}`;
 }
 
 export function renderHome(ctx: AppContext): string {
@@ -57,6 +88,7 @@ export function renderHome(ctx: AppContext): string {
       <canvas id="ping-canvas" width="384" height="384" role="img" aria-label="${esc(season.pingName)}, ${esc(stageLine)}"></canvas>
       <h1>${esc(season.pingName)}</h1>
       <p class="body2">${stageLine}</p>
+      ${renderCare(ctx)}
       <div class="xp">
         <div class="xp-head"><strong>Level ${level.level}</strong><span>${esc(titleForLevel(level.level))}</span></div>
         <div class="xp-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${level.needed}" aria-valuenow="${level.into}" aria-label="XP to next level"><i style="width:${pct}%"></i></div>
@@ -99,8 +131,13 @@ function renderToday(ctx: AppContext, today: string): string {
       <span><strong>${esc(v.contact.name)}</strong> ${v.contact.org ? `<span class="body2">· ${esc(v.contact.org)}</span>` : ''}<br><span class="body2">Sent ${relativeDay(v.lastDate, today)}</span></span>
       <button class="btn btn-secondary btn-small" type="button" data-action="followup" data-thread="${v.thread.id}">Log follow-up</button>
     </li>`).join('');
+  const streak = careNow(ctx.state, today)!.streak;
+  const risk = streak.atRisk
+    ? `<p class="at-risk">🔥 Log any outreach today to keep your ${plural(streak.current, 'day')} streak going.</p>`
+    : '';
   return `<section class="panel today">
     <h2>Today</h2>
+    ${risk}
     <p>${plural(sentToday, 'email')} sent today · <span class="body2">${fullLeft ? `${fullLeft} more at full XP` : 'Daily full-XP sends used: quality over quantity!'}</span></p>
     ${due.length
       ? `<h3>${plural(due.length, 'follow-up')} due</h3><ul class="due-list">${dueList}</ul>${due.length > 5 ? `<a href="#pipeline">See all in the pipeline</a>` : ''}`

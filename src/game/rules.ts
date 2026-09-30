@@ -16,6 +16,7 @@ export const XP = {
   closed: 5,
   newOrg: 25,
   speedBonus: 10,
+  welcomeBack: 20,
 } as const;
 
 export const STAT_POINTS: Record<EventType, number> = {

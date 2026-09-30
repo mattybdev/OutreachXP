@@ -2,6 +2,7 @@
 // so undo is safe and the numbers can be retuned later by replaying.
 
 import { STATS, type Stat, type Stats } from '../ping/genome';
+import { seasonStart, simulateCare, streakMultiplier, streakOn } from './care';
 import { daysBetween } from './dates';
 import { LIMITS, levelFromXp, STAT_POINTS, WARM_INTRO_MULTIPLIER, XP, type LevelInfo } from './rules';
 import {
@@ -77,7 +78,14 @@ export function computeSeason(state: GameState, seasonId: string): SeasonSummary
   const stats: Stats = { intellect: 0, craft: 0, heart: 0, authority: 0 };
   let totalXp = 0;
 
-  for (const event of sortEvents(state.events.filter((e) => e.seasonId === seasonId))) {
+  const seasonEvents = sortEvents(state.events.filter((e) => e.seasonId === seasonId));
+  const lastDate = seasonEvents.at(-1)?.date ?? '0000-01-01';
+  const care = simulateCare(state, seasonId, lastDate);
+  const activity = new Set(seasonEvents.map((e) => e.date));
+  const floor = seasonStart(state, seasonId);
+  const streakMemo = new Map<string, number>();
+
+  for (const event of seasonEvents) {
     const thread = threads.get(event.threadId);
     const contact = contacts.get(thread?.contactId ?? '');
     if (!thread || !contact) continue;
@@ -143,6 +151,12 @@ export function computeSeason(state: GameState, seasonId: string): SeasonSummary
       if (bonus > 0) parts.push({ label: 'Warm intro ×1.25', xp: bonus });
     }
     if (newOrgs.has(event.id)) parts.push({ label: 'New organization', xp: XP.newOrg });
+    if (care.wakeEventIds.has(event.id)) parts.push({ label: 'Welcome back', xp: XP.welcomeBack });
+    const multiplier = streakMultiplier(streakOn(event.date, activity, state.settings, floor, streakMemo));
+    if (multiplier > 1) {
+      const bonus = Math.round(parts.reduce((sum, p) => sum + p.xp, 0) * (multiplier - 1));
+      if (bonus > 0) parts.push({ label: `Streak ×${multiplier.toFixed(2)}`, xp: bonus });
+    }
 
     const xp = Math.round(parts.reduce((sum, p) => sum + p.xp, 0));
     const entry: LedgerEntry = { event, xp, stat, statPoints, parts };
