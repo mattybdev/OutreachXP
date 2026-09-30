@@ -1,6 +1,7 @@
 // Ping Lab: a tuning page for the procedural Ping generator (GDD §9.4).
 
-import { roomColors, statAccent } from '../theme';
+import { statAccent } from '../theme';
+import { BACKGROUNDS, RARITY_LABEL, renderBackground } from '../ping/backgrounds';
 import {
   FORM_NAMES,
   LIFE_STAGES,
@@ -17,7 +18,7 @@ import {
   type PingGenome,
   type Stats,
 } from '../ping/genome';
-import { drawFrame, GROUND, PING_CANVAS, PIXEL_DENSITY, renderPing, type PingFrame } from '../ping/render';
+import { drawFrame, PING_CANVAS, renderPing, type PingFrame } from '../ping/render';
 
 const STAT_LABELS: Record<keyof Stats, string> = {
   intellect: 'Intellect',
@@ -42,6 +43,7 @@ interface LabState {
   morph: boolean;
   dither: boolean;
   room: boolean;
+  background?: string;
   varietyMode: 'seeds' | 'random';
 }
 
@@ -198,6 +200,14 @@ function buildControls(): void {
     });
   }
 
+  const bgSelect = $<HTMLSelectElement>('bg-select');
+  bgSelect.innerHTML = BACKGROUNDS.map((b) => `<option value="${b.id}">${b.name} (${RARITY_LABEL[b.rarity]})</option>`).join('');
+  bgSelect.value = state.background ?? 'room';
+  bgSelect.addEventListener('change', () => {
+    state.background = bgSelect.value;
+    syncControls();
+  });
+
   buildPresets();
   $('reroll').addEventListener('click', rerollVariety);
   $('export-png').addEventListener('click', exportPng);
@@ -273,36 +283,24 @@ function tick(now: number): void {
   if (state.animate) frozenTime = time;
   const genome: PingGenome = { ...state.genome, stats: { ...shown }, form: currentForm(state.genome.stats) };
   // Animation runs at 10 fps, so only regenerate when something visible changed.
-  const key = JSON.stringify([genome, Math.floor(time * 10), state.dither, state.room]);
+  const key = JSON.stringify([genome, Math.floor(time * 10), state.dither, state.room, state.background]);
   if (key !== lastKey) {
     lastKey = key;
     lastFrame = renderPing(genome, { time, dither: state.dither });
   }
   const frame = lastFrame!;
-  paintRoom(ctx, STAGE_SCALE, state.room);
+  paintRoom(ctx, STAGE_SCALE, state.room, time);
   drawFrame(ctx, frame, STAGE_SCALE);
   requestAnimationFrame(tick);
 }
 
-function paintRoom(c: CanvasRenderingContext2D, scale: number, room: boolean): void {
-  const size = PING_CANVAS * scale;
-  c.clearRect(0, 0, size, size);
+function paintRoom(c: CanvasRenderingContext2D, scale: number, room: boolean, time = 0): void {
   if (!room) {
     c.fillStyle = '#ffffff';
-    c.fillRect(0, 0, size, size);
+    c.fillRect(0, 0, PING_CANVAS * scale, PING_CANVAS * scale);
     return;
   }
-  c.fillStyle = roomColors.wall;
-  c.fillRect(0, 0, size, size);
-  const step = 6 * PIXEL_DENSITY;
-  c.fillStyle = roomColors.wallDot;
-  for (let y = 2 * PIXEL_DENSITY, row = 0; y < GROUND; y += step, row++) {
-    for (let x = row % 2 ? step / 2 : 1; x < PING_CANVAS; x += step) c.fillRect(x * scale, y * scale, scale, scale);
-  }
-  c.fillStyle = roomColors.floor;
-  c.fillRect(0, GROUND * scale, size, (PING_CANVAS - GROUND) * scale);
-  c.fillStyle = roomColors.floorLine;
-  c.fillRect(0, GROUND * scale, size, PIXEL_DENSITY * scale);
+  drawFrame(c, renderBackground(state.background ?? 'room', time), scale);
 }
 
 // ─── Variety grid ──────────────────────────────────────────────────────────

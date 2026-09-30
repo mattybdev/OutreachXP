@@ -87,6 +87,7 @@ export function renderHome(ctx: AppContext): string {
   return `<div class="home">
     <section class="panel ping-panel" aria-label="${esc(season.pingName)}">
       <canvas id="ping-canvas" width="384" height="384" role="img" aria-label="${esc(season.pingName)}, ${esc(stageLine)}"></canvas>
+      <a class="bg-link" href="#achievements">Change background</a>
       <h1>${esc(season.pingName)}</h1>
       <p class="body2">${stageLine}</p>
       ${renderCare(ctx)}

@@ -81,6 +81,8 @@ export interface Settings {
   activeDays: number[];
   /** Dates off (YYYY-MM-DD): they never break a streak or drain Ping's meters. */
   holidays: string[];
+  /** The equipped background for Ping's room (unlocked by achievements). */
+  background: string;
 }
 
 export interface GameState {
@@ -118,6 +120,6 @@ export function emptyState(): GameState {
     threads: [],
     events: [],
     checkins: [],
-    settings: { followUpMinDays: 3, followUpMaxDays: 7, activeDays: [1, 2, 3, 4, 5], holidays: [] },
+    settings: { followUpMinDays: 3, followUpMaxDays: 7, activeDays: [1, 2, 3, 4, 5], holidays: [], background: 'room' },
   };
 }

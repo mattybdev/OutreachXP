@@ -6,8 +6,8 @@ import { computeSeason } from '../game/engine';
 import { lifeStageForLevel, titleForLevel } from '../game/rules';
 import { loadState, requestPersistence, saveState } from '../game/storage';
 import type { GameState } from '../game/types';
-import { drawFrame, GROUND, PING_CANVAS, PIXEL_DENSITY, renderPing, type PingFrame } from '../ping/render';
-import { roomColors } from '../theme';
+import { renderBackground } from '../ping/backgrounds';
+import { drawFrame, PING_CANVAS, renderPing, type PingFrame } from '../ping/render';
 import { careNow, currentSeason, esc, seasonSummary, type AppContext, type QuickLogOptions } from './context';
 import { openQuickLog } from './quicklog';
 import { drawReactions, isActive, pingOffset, reactionFor, type Reaction } from './reactions';
@@ -16,11 +16,11 @@ import { bindHome, currentGenome, renderHome } from './views/home';
 import { bindPipeline, renderPipeline } from './views/pipeline';
 import { bindQuests, renderQuests } from './views/quests';
 import { bindSeason, renderSeason } from './views/season';
-import { achievements, renderTrophies } from './views/trophies';
+import { achievements, backgroundFor, bindAchievements, equippedBackground, renderAchievements } from './views/achievements';
 import { PERFECT_DAY_XP } from '../game/quests';
 
-type Route = 'home' | 'pipeline' | 'quests' | 'trophies' | 'season' | 'data';
-const ROUTES: Route[] = ['home', 'pipeline', 'quests', 'trophies', 'season', 'data'];
+type Route = 'home' | 'pipeline' | 'quests' | 'achievements' | 'season' | 'data';
+const ROUTES: Route[] = ['home', 'pipeline', 'quests', 'achievements', 'season', 'data'];
 
 const view = document.getElementById('view')!;
 const dialog = document.getElementById('quicklog') as HTMLDialogElement;
@@ -83,7 +83,7 @@ function announce(before: GameState, after: GameState): void {
     toast('Logged.');
   }
 
-  // Follow-up toasts for quests, Perfect Days and new trophies.
+  // Follow-up toasts for quests, Perfect Days and new achievements.
   const wasDone = new Set(a.quests.filter((q) => q.completed).map((q) => q.id));
   const newlyDone = b.quests.filter((q) => q.completed && !wasDone.has(q.id));
   if (newlyDone.length) {
@@ -94,7 +94,10 @@ function announce(before: GameState, after: GameState): void {
     reactions.push({ kind: 'burst', start: now + 400 });
   }
   const had = new Set(achievements(before).filter((x) => x.unlockedOn).map((x) => x.id));
-  for (const t of achievements(after).filter((x) => x.unlockedOn && !had.has(x.id))) queueToast(`${t.icon} Trophy unlocked: ${t.title}`, 'xp');
+  for (const t of achievements(after).filter((x) => x.unlockedOn && !had.has(x.id))) {
+    const bg = backgroundFor(t.id);
+    queueToast(`${t.icon} Achievement unlocked: ${t.title}${bg ? ` · New background: ${bg.name}!` : ''}`, 'xp');
+  }
 }
 
 // Toasts show one at a time; extra ones wait their turn.
@@ -118,7 +121,8 @@ function showToast(message: string, tone: 'info' | 'xp' | 'error'): void {
 }
 
 function currentRoute(): Route {
-  const hash = location.hash.replace('#', '') as Route;
+  const raw = location.hash.replace('#', '');
+  const hash = (raw === 'trophies' ? 'achievements' : raw) as Route;
   if (!currentSeason(state)) return hash === 'data' ? 'data' : 'season';
   return ROUTES.includes(hash) ? hash : 'home';
 }
@@ -152,8 +156,9 @@ function render(): void {
       root.innerHTML = renderQuests(ctx);
       bindQuests(root, ctx);
       break;
-    case 'trophies':
-      root.innerHTML = renderTrophies(ctx);
+    case 'achievements':
+      root.innerHTML = renderAchievements(ctx);
+      bindAchievements(root, ctx);
       break;
     case 'season':
       root.innerHTML = renderSeason(ctx);
@@ -174,21 +179,6 @@ let lastFrame: PingFrame | null = null;
 let reactions: Reaction[] = [];
 const start = performance.now();
 
-function paintRoom(c: CanvasRenderingContext2D, scale: number): void {
-  const size = PING_CANVAS * scale;
-  c.fillStyle = roomColors.wall;
-  c.fillRect(0, 0, size, size);
-  c.fillStyle = roomColors.wallDot;
-  const step = 6 * PIXEL_DENSITY;
-  for (let y = 2 * PIXEL_DENSITY, row = 0; y < GROUND; y += step, row++) {
-    for (let x = row % 2 ? step / 2 : 1; x < PING_CANVAS; x += step) c.fillRect(x * scale, y * scale, scale, scale);
-  }
-  c.fillStyle = roomColors.floor;
-  c.fillRect(0, GROUND * scale, size, (PING_CANVAS - GROUND) * scale);
-  c.fillStyle = roomColors.floorLine;
-  c.fillRect(0, GROUND * scale, size, PIXEL_DENSITY * scale);
-}
-
 function animate(now: number): void {
   reactions = reactions.filter((r) => isActive(r, now));
   const canvas = document.getElementById('ping-canvas') as HTMLCanvasElement | null;
@@ -205,7 +195,7 @@ function animate(now: number): void {
       const c = canvas.getContext('2d')!;
       const scale = canvas.width / PING_CANVAS;
       const { dx, dy } = pingOffset(reactions, now);
-      paintRoom(c, scale);
+      drawFrame(c, renderBackground(equippedBackground(state), time), scale);
       drawFrame(c, lastFrame, scale, dx * scale, dy * scale);
       drawReactions(c, reactions, now, scale);
       canvas.dataset.painted = reacting ? '' : key;

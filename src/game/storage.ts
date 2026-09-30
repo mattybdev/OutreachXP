@@ -140,6 +140,7 @@ export function parseState(raw: unknown): GameState {
         ? [...new Set((settings.activeDays as unknown[]).filter((d): d is number => Number.isInteger(d) && (d as number) >= 0 && (d as number) <= 6))].sort()
         : [1, 2, 3, 4, 5],
       holidays: Array.isArray(settings.holidays) ? [...new Set((settings.holidays as unknown[]).filter(isValidISODate))].sort() : [],
+      background: str(settings.background) && /^[a-z0-9-]{1,40}$/.test(settings.background) ? settings.background : 'room',
     },
   };
 }
